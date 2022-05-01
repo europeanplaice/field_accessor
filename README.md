@@ -1,16 +1,16 @@
 # field_accessor
 
-With this macro, a user can get a field of a struct by a `String` type variable.
+With this procedural macro, a user can get a field of a struct by a `String` type variable.
 This program is currently experimental and I haven't written test codes yet.
 
-## usage
+## Usage
 
 ```
 [dependencies]
 field_accessor = {git = "https://github.com/europeanplaice/field_accessor"}
 ```
 
-## example
+## Example
 ```rust
 use field_accessor::FieldAccessor;
 
@@ -42,3 +42,80 @@ enum FieldEnum {
 }
 ```
 This macro generates `FieldEnum` inside the implementation which corresponds to the fields of the struct. This enables the getter and setter functions to accept arbitrary types. As a side effect, a user needs to give `FieldEnum` not a value itself to the setter function.
+
+## What this macro generates (in this example)
+```rust
+#![feature(prelude_import)]
+#[prelude_import]
+use std::prelude::rust_2021::*;
+#[macro_use]
+extern crate std;
+use field_accessor::FieldAccessor;
+struct Dog {
+    name: String,
+    age: u32,
+}
+enum FieldEnum {
+    name(String),
+    age(u32),
+}
+#[automatically_derived]
+#[allow(unused_qualifications)]
+impl ::core::fmt::Debug for FieldEnum {
+    fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
+        match (&*self,) {
+            (&FieldEnum::name(ref __self_0),) => {
+                let debug_trait_builder = &mut ::core::fmt::Formatter::debug_tuple(f, "name");
+                let _ = ::core::fmt::DebugTuple::field(debug_trait_builder, &&(*__self_0));
+                ::core::fmt::DebugTuple::finish(debug_trait_builder)
+            }
+            (&FieldEnum::age(ref __self_0),) => {
+                let debug_trait_builder = &mut ::core::fmt::Formatter::debug_tuple(f, "age");
+                let _ = ::core::fmt::DebugTuple::field(debug_trait_builder, &&(*__self_0));
+                ::core::fmt::DebugTuple::finish(debug_trait_builder)
+            }
+        }
+    }
+}
+impl Dog {
+    pub fn get(self, field_string: String) -> FieldEnum {
+        match &*field_string {
+            "name" => FieldEnum::name(self.name),
+            "age" => FieldEnum::age(self.age),
+            _ => ::core::panicking::panic_fmt(::core::fmt::Arguments::new_v1(
+                &["invalid field name"],
+                &[],
+            )),
+        }
+    }
+    pub fn set(mut self, field: String, value: FieldEnum) -> Self {
+        match &*field {
+            "name" => {
+                self.name = match value {
+                    FieldEnum::name(v) => v,
+                    _ => ::core::panicking::panic_fmt(::core::fmt::Arguments::new_v1(
+                        &["invalid field value"],
+                        &[],
+                    )),
+                };
+            }
+            "age" => {
+                self.age = match value {
+                    FieldEnum::age(v) => v,
+                    _ => ::core::panicking::panic_fmt(::core::fmt::Arguments::new_v1(
+                        &["invalid field value"],
+                        &[],
+                    )),
+                };
+            }
+            _ => ::core::panicking::panic_fmt(::core::fmt::Arguments::new_v1(
+                &["invalid field name"],
+                &[],
+            )),
+        };
+        self
+    }
+}
+```
+
+This code is generated at compiling.
