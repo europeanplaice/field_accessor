@@ -1,5 +1,7 @@
 # struct_field_getter
 
+With this macro, a user can get a field of a struct by a `String` type variable.
+
 ## usage
 
 ```
