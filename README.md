@@ -33,11 +33,11 @@ fn main() {
 name("Jiro")
 ```
 
-In this example, it returns `ReturnValue` enum
+In this example, it returns `FieldEnum` enum.
 ```rust
 enum FieldEnum {
     name(String),
     age(u32),
 }
 ```
-.
+This macro generates `FieldEnum` inside the implementation which corresponds to the fields of the struct. This enables the getter and setter functions to accept arbitrary types. As a side effect, a user needs to give `FieldEnum` not a value itself to the setter function.
