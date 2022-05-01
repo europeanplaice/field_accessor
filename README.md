@@ -30,3 +30,12 @@ fn main() {
 ```
 name("Taro")
 ```
+
+In this example, it returns `ReturnValue` enum
+```rust
+enum ReturnValue {
+    name(String),
+    age(u32),
+}
+```
+.
