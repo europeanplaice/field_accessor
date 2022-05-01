@@ -10,6 +10,21 @@ This program is currently experimental and I haven't written test codes yet.
 field_accessor = {git = "https://github.com/europeanplaice/field_accessor"}
 ```
 
+### Definition
+```rust
+pub fn get(self, field_string: String) -> FieldEnum
+
+pub fn set(&mut self, field_string: String, value: FieldEnum) -> ()
+```
+## What is `FieldEnum`?
+This macro generates `FieldEnum` enum such as below.
+```rust
+enum FieldEnum {
+    name(String),
+    age(u32),
+}
+```
+This macro generates `FieldEnum` inside the implementation which corresponds to the fields of the struct. This enables the getter and setter functions to accept arbitrary types. As a side effect, a user needs to give `FieldEnum` not a value itself to the setter function. However, `FieldEnum` is created by the macro, you don't have to define `FieldEnum`.
 ## Example
 ```rust
 use field_accessor::FieldAccessor;
@@ -21,27 +36,30 @@ struct Dog {
 }
 
 fn main() {
-    let v = "name".to_string();
-    let mut a = Dog{name: "Taro".to_string(), age: 3};
-    a = a.set(v, FieldEnum::name("Jiro".to_string()));
-    let v = "name".to_string();
-    let b = a.get(v);
+    let mut rng = rand::thread_rng();
+    let fieldname;
+    let newvalue;
+    if rng.gen::<f64>() > 0.5 {
+        fieldname = "name".to_string();
+        newvalue = FieldEnum::name("Jiro".to_string())
+    } else {
+        fieldname = "age".to_string();
+        newvalue = FieldEnum::age(4)
+    }
+
+    let mut a = Dog {
+        name: "Taro".to_string(),
+        age: 3,
+    };
+    a.set(fieldname.clone(), newvalue);
+    let b = a.get(fieldname);
     println!("{:?}", b);
 }
 ```
 ### output
 ```
-name("Jiro")
+age(4) or name("Jiro")
 ```
-
-In this example, it returns `FieldEnum` enum.
-```rust
-enum FieldEnum {
-    name(String),
-    age(u32),
-}
-```
-This macro generates `FieldEnum` inside the implementation which corresponds to the fields of the struct. This enables the getter and setter functions to accept arbitrary types. As a side effect, a user needs to give `FieldEnum` not a value itself to the setter function. However, `FieldEnum` is generated inside the macro, you don't have to define `FieldEnum`.
 
 ## What this macro generates (in this example)
 ```rust
