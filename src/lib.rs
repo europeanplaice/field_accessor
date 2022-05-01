@@ -2,7 +2,7 @@ use syn::{parse_macro_input, DeriveInput, FieldsNamed};
 use quote::quote;
 use proc_macro::{self, TokenStream};
 
-#[proc_macro_derive(FieldGetter)]
+#[proc_macro_derive(FieldAccessor)]
 pub fn get(input: TokenStream) -> TokenStream {
     let DeriveInput {ident, data, ..} = parse_macro_input!(input);
 

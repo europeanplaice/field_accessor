@@ -1,4 +1,4 @@
-# struct_field_getter
+# field_accessor
 
 With this macro, a user can get a field of a struct by a `String` type variable.
 
@@ -6,14 +6,14 @@ With this macro, a user can get a field of a struct by a `String` type variable.
 
 ```
 [dependencies]
-struct_field_getter = {git = "https://github.com/europeanplaice/struct_field_getter"}
+field_accessor = {git = "https://github.com/europeanplaice/field_accessor"}
 ```
 
 ## example
 ```rust
-use struct_field_getter::FieldGetter;
+use field_accessor::FieldAccessor;
 
-#[derive(FieldGetter)]
+#[derive(FieldAccessor)]
 struct Dog {
     name: String,
     age: u32

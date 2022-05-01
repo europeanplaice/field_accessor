@@ -1,5 +1,5 @@
 [package]
-name = "struct_field_getter"
+name = "field_accessor"
 version = "0.1.0"
 edition = "2021"
 
