@@ -21,19 +21,21 @@ struct Dog {
 
 fn main() {
     let v = "name".to_string();
-    let a = Dog{name: "Taro".to_string(), age: 3};
+    let mut a = Dog{name: "Taro".to_string(), age: 3};
+    a = a.set(v, FieldEnum::name("Jiro".to_string()));
+    let v = "name".to_string();
     let b = a.get(v);
     println!("{:?}", b);
 }
 ```
 ### output
 ```
-name("Taro")
+name("Jiro")
 ```
 
 In this example, it returns `ReturnValue` enum
 ```rust
-enum ReturnValue {
+enum FieldEnum {
     name(String),
     age(u32),
 }

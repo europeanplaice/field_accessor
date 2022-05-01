@@ -11,21 +11,35 @@ pub fn get(input: TokenStream) -> TokenStream {
             syn::Fields::Named(FieldsNamed{named, ..}) => {
                 let idents = named.iter().map(|f| &f.ident);
                 let idents2 = named.iter().map(|f| &f.ident);
+                let idents3 = named.iter().map(|f| &f.ident);
                 let tys2 = named.iter().map(|f| &f.ty).clone();
                 quote!{
                     #[derive(Debug)]
-                    enum ReturnValue{
+                    enum FieldEnum{
                         #(#idents2(#tys2)),*
                     }
 
                     impl #ident {
-                        pub fn get(self, field: String) -> ReturnValue{
-                            match &*field {
+                        pub fn get(self, field_string: String) -> FieldEnum{
+                            match &*field_string {
                                 #(stringify!(#idents) => {
-                                    ReturnValue::#idents(self.#idents)
+                                    FieldEnum::#idents(self.#idents)
                                 }),*
                                 _ => panic!("invalid field name")
                             }
+                        }
+
+                        pub fn set(mut self, field: String, value: FieldEnum) -> Self{
+                            match &*field {
+                                #(stringify!(#idents3) => {
+                                    self.#idents3 = match value {
+                                        FieldEnum::#idents3(v) => v,
+                                        _ => panic!("invalid field value")
+                                    };
+                                }),*
+                                _ => panic!("invalid field name")
+                            };
+                            self
                         }
                     }
                 }
