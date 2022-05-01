@@ -69,6 +69,7 @@ use std::prelude::rust_2021::*;
 #[macro_use]
 extern crate std;
 use field_accessor::FieldAccessor;
+use rand::Rng;
 struct Dog {
     name: String,
     age: u32,
@@ -106,8 +107,8 @@ impl Dog {
             )),
         }
     }
-    pub fn set(mut self, field: String, value: FieldEnum) -> Self {
-        match &*field {
+    pub fn set(&mut self, field_string: String, value: FieldEnum) -> () {
+        match &*field_string {
             "name" => {
                 self.name = match value {
                     FieldEnum::name(v) => v,
@@ -131,7 +132,6 @@ impl Dog {
                 &[],
             )),
         };
-        self
     }
 }
 ```
