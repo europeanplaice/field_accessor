@@ -1,6 +1,7 @@
 # field_accessor
 
 With this macro, a user can get a field of a struct by a `String` type variable.
+This program is currently experimental and I haven't written test codes yet.
 
 ## usage
 
