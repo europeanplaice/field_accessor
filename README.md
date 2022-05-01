@@ -41,7 +41,7 @@ enum FieldEnum {
     age(u32),
 }
 ```
-This macro generates `FieldEnum` inside the implementation which corresponds to the fields of the struct. This enables the getter and setter functions to accept arbitrary types. As a side effect, a user needs to give `FieldEnum` not a value itself to the setter function.
+This macro generates `FieldEnum` inside the implementation which corresponds to the fields of the struct. This enables the getter and setter functions to accept arbitrary types. As a side effect, a user needs to give `FieldEnum` not a value itself to the setter function. However, `FieldEnum` is generated inside the macro, you don't have to define `FieldEnum`.
 
 ## What this macro generates (in this example)
 ```rust
