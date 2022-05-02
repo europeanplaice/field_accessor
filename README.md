@@ -1,6 +1,6 @@
 # field_accessor
 
-With this procedural macro, a user can get a field of a struct by a `String` type variable.
+With this procedural macro, a user can dynamically get a field of a struct by a `String` type variable.
 This program is currently experimental and I haven't written test codes yet.
 
 ## Usage
@@ -27,7 +27,7 @@ enum DogFieldEnum {
     age(u32),
 }
 ```
-This macro generates `(struct name)FieldEnum` inside the implementation which corresponds to the fields of the struct. This enables the getter and setter functions to accept arbitrary types. As a side effect, a user needs to give `(struct name)FieldEnum` not a value itself to the setter function. However, `(struct name)FieldEnum` is created by the macro, you don't have to define `(struct name)FieldEnum`.
+This macro generates `(struct name)FieldEnum` inside the implementation which corresponds to the fields of the struct. This enables the getter and setter functions to accept arbitrary types. As a side effect, a user needs to give it (not a value itself) to the setter function. However, `(struct name)FieldEnum` is defined by the macro so you don't have to care about it.
 ## Example
 ```rust
 use field_accessor::FieldAccessor;
