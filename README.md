@@ -12,9 +12,9 @@ field_accessor = {git = "https://github.com/europeanplaice/field_accessor"}
 
 ### Definition
 ```rust
-pub fn get(self, field_string: String) -> FieldEnum
+pub fn get(self, field_string: String) -> FieldEnum;
 
-pub fn set(&mut self, field_string: String, value: FieldEnum) -> ()
+pub fn set(&mut self, value: FieldEnum) -> ();
 ```
 ## What is `FieldEnum`?
 This macro generates `FieldEnum` enum such as below.
@@ -39,6 +39,7 @@ fn main() {
     let mut rng = rand::thread_rng();
     let fieldname;
     let newvalue;
+
     if rng.gen::<f64>() > 0.5 {
         fieldname = "name".to_string();
         newvalue = FieldEnum::name("Jiro".to_string())
@@ -51,10 +52,11 @@ fn main() {
         name: "Taro".to_string(),
         age: 3,
     };
-    a.set(fieldname.clone(), newvalue);
+    a.set(newvalue);
     let b = a.get(fieldname);
     println!("{:?}", b);
 }
+
 ```
 ### output
 ```
@@ -107,31 +109,15 @@ impl Dog {
             )),
         }
     }
-    pub fn set(&mut self, field_string: String, value: FieldEnum) -> () {
-        match &*field_string {
-            "name" => {
-                self.name = match value {
-                    FieldEnum::name(v) => v,
-                    _ => ::core::panicking::panic_fmt(::core::fmt::Arguments::new_v1(
-                        &["invalid field value"],
-                        &[],
-                    )),
-                };
-            }
-            "age" => {
-                self.age = match value {
-                    FieldEnum::age(v) => v,
-                    _ => ::core::panicking::panic_fmt(::core::fmt::Arguments::new_v1(
-                        &["invalid field value"],
-                        &[],
-                    )),
-                };
-            }
+    pub fn set(&mut self, value: FieldEnum) -> () {
+        match value {
+            FieldEnum::name(v) => self.name = v,
+            FieldEnum::age(v) => self.age = v,
             _ => ::core::panicking::panic_fmt(::core::fmt::Arguments::new_v1(
-                &["invalid field name"],
+                &["invalid field value"],
                 &[],
             )),
-        };
+        }
     }
 }
 ```

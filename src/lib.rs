@@ -29,16 +29,15 @@ pub fn get(input: TokenStream) -> TokenStream {
                             }
                         }
 
-                        pub fn set(&mut self, field_string: String, value: FieldEnum) -> (){
-                            match &*field_string {
-                                #(stringify!(#idents3) => {
-                                    self.#idents3 = match value {
-                                        FieldEnum::#idents3(v) => v,
-                                        _ => panic!("invalid field value")
-                                    };
-                                }),*
-                                _ => panic!("invalid field name")
-                            };
+                        pub fn set(&mut self, value: FieldEnum) -> (){
+                            
+                            match value {
+                                #(
+                                    FieldEnum::#idents3(v) => {self.#idents3 = v}
+                                ),*
+                                _ => panic!("invalid field value"),
+                            }
+                            
                         }
                     }
                 }
