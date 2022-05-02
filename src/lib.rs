@@ -1,5 +1,5 @@
 use syn::{parse_macro_input, DeriveInput, FieldsNamed};
-use quote::quote;
+use quote::{quote, format_ident};
 use proc_macro::{self, TokenStream};
 
 #[proc_macro_derive(FieldAccessor)]
@@ -13,27 +13,28 @@ pub fn get(input: TokenStream) -> TokenStream {
                 let idents2 = named.iter().map(|f| &f.ident);
                 let idents3 = named.iter().map(|f| &f.ident);
                 let tys2 = named.iter().map(|f| &f.ty).clone();
+                let enumname = format_ident!("{}{}", ident, "FieldEnum");
                 quote!{
                     #[derive(Debug)]
-                    enum FieldEnum{
+                    enum #enumname{
                         #(#idents2(#tys2)),*
                     }
 
                     impl #ident {
-                        pub fn get(self, field_string: String) -> FieldEnum{
+                        pub fn get(self, field_string: String) -> #enumname{
                             match &*field_string {
                                 #(stringify!(#idents) => {
-                                    FieldEnum::#idents(self.#idents)
+                                    #enumname::#idents(self.#idents)
                                 }),*
                                 _ => panic!("invalid field name")
                             }
                         }
 
-                        pub fn set(&mut self, value: FieldEnum) -> (){
+                        pub fn set(&mut self, value: #enumname) -> (){
                             
                             match value {
                                 #(
-                                    FieldEnum::#idents3(v) => {self.#idents3 = v}
+                                    #enumname::#idents3(v) => {self.#idents3 = v}
                                 ),*
                                 _ => panic!("invalid field value"),
                             }
