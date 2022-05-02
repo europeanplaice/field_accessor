@@ -11,7 +11,7 @@ field_accessor = {git = "https://github.com/europeanplaice/field_accessor"}
 ```
 
 ### Definition
-This macro provides the two methods for structs. Using `get` You can get a field's value dynamically.
+This macro provides the two methods for structs. Using `get` you can get a field's value dynamically.
 Also, a field's value can be updated by `set`.
 ```rust
 pub fn get(self, field_string: String) -> FieldEnum;
@@ -43,7 +43,7 @@ struct Dog {
 struct Cat {
     name: String,
     age: u32,
-    parent: (String, String)
+    parents: (String, String)
 }
 
 fn main() {
@@ -73,12 +73,12 @@ fn main() {
     let mut cat = Cat {
         name: "Taro".to_string(),
         age: 3,
-        parent: ("Tom".to_string(), "Taylor".to_string()),
+        parents: ("Tom".to_string(), "Taylor".to_string()),
     };
 
     if rng.gen::<f64>() > 0.5 {
-        fieldname = "parent".to_string();
-        newvalue = CatFieldEnum::parent(("Paul".to_string(), "Ada".to_string()))
+        fieldname = "parents".to_string();
+        newvalue = CatFieldEnum::parents(("Paul".to_string(), "Ada".to_string()))
     } else {
         fieldname = "age".to_string();
         newvalue = CatFieldEnum::age(4)
@@ -93,7 +93,7 @@ fn main() {
 ### output
 ```
 age(4) or name("Jiro")
-age(4) or parent(("Paul", "Ada"))
+age(4) or parents(("Paul", "Ada"))
 ```
 
 ## What this macro generates (in this example)
@@ -156,12 +156,12 @@ impl Dog {
 struct Cat {
     name: String,
     age: u32,
-    parent: (String, String),
+    parents: (String, String),
 }
 enum CatFieldEnum {
     name(String),
     age(u32),
-    parent((String, String)),
+    parents((String, String)),
 }
 #[automatically_derived]
 #[allow(unused_qualifications)]
@@ -178,8 +178,8 @@ impl ::core::fmt::Debug for CatFieldEnum {
                 let _ = ::core::fmt::DebugTuple::field(debug_trait_builder, &&(*__self_0));
                 ::core::fmt::DebugTuple::finish(debug_trait_builder)
             }
-            (&CatFieldEnum::parent(ref __self_0),) => {
-                let debug_trait_builder = &mut ::core::fmt::Formatter::debug_tuple(f, "parent");
+            (&CatFieldEnum::parents(ref __self_0),) => {
+                let debug_trait_builder = &mut ::core::fmt::Formatter::debug_tuple(f, "parents");
                 let _ = ::core::fmt::DebugTuple::field(debug_trait_builder, &&(*__self_0));
                 ::core::fmt::DebugTuple::finish(debug_trait_builder)
             }
@@ -191,7 +191,7 @@ impl Cat {
         match &*field_string {
             "name" => CatFieldEnum::name(self.name),
             "age" => CatFieldEnum::age(self.age),
-            "parent" => CatFieldEnum::parent(self.parent),
+            "parents" => CatFieldEnum::parents(self.parents),
             _ => ::core::panicking::panic_fmt(::core::fmt::Arguments::new_v1(
                 &["invalid field name"],
                 &[],
@@ -202,7 +202,7 @@ impl Cat {
         match value {
             CatFieldEnum::name(v) => self.name = v,
             CatFieldEnum::age(v) => self.age = v,
-            CatFieldEnum::parent(v) => self.parent = v,
+            CatFieldEnum::parents(v) => self.parents = v,
             _ => ::core::panicking::panic_fmt(::core::fmt::Arguments::new_v1(
                 &["invalid field value"],
                 &[],
