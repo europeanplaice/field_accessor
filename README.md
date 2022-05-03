@@ -11,89 +11,60 @@ field_accessor = {git = "https://github.com/europeanplaice/field_accessor"}
 ```
 
 ### Definition
-This macro provides the two methods for structs. Using `get` you can get a field's value dynamically.
+This macro provides the two methods for structs by implementing `GetterSetter` trait. Using `get` you can get a field's value dynamically.
 Also, a field's value can be updated by `set`.
 ```rust
-pub fn get(self, field_string: String) -> FieldEnum;
-
-pub fn set(&mut self, value: FieldEnum) -> ();
-```
-
-## What is `(struct name)FieldEnum`?
-This macro generates `(struct name)FieldEnum` enum. For `Dog` struct,
-```rust
-enum DogFieldEnum {
-    name(String),
-    age(u32),
+trait GetterSetter<T> {
+    fn get(&mut self, field_string: String) -> T;
+    fn set(&mut self, field_string: String, value: T);
 }
 ```
-This macro generates `(struct name)FieldEnum` inside the implementation which corresponds to the fields of the struct. This enables the getter and setter functions to accept arbitrary types. As a side effect, a user needs to give it (not a value itself) to the setter function. However, `(struct name)FieldEnum` is defined by the macro so you don't have to care about it.
+
 ## Example
 ```rust
 use field_accessor::FieldAccessor;
-use rand::Rng;
 
 #[derive(FieldAccessor)]
 struct Dog {
     name: String,
     age: u32,
-}
-
-#[derive(FieldAccessor)]
-struct Cat {
-    name: String,
-    age: u32,
-    parents: (String, String)
+    life_expectancy: u32,
 }
 
 fn main() {
-    let mut rng = rand::thread_rng();
-    let fieldname;
-    let newvalue;
-
     let mut dog = Dog {
         name: "Taro".to_string(),
         age: 3,
+        life_expectancy: 9,
     };
 
-    if rng.gen::<f64>() > 0.5 {
-        fieldname = "name".to_string();
-        newvalue = DogFieldEnum::name("Jiro".to_string())
-    } else {
-        fieldname = "age".to_string();
-        newvalue = DogFieldEnum::age(4)
-    }
-
-    dog.set(newvalue);
-    let fieldvalue = dog.get(fieldname);
+    let field_name = "name".to_string();
+    let value_to_update = "Jiro".to_string();
+    dog.set(field_name.clone(), value_to_update);
+    let fieldvalue: String = dog.get(field_name);
     println!("{:?}", fieldvalue);
 
-    let fieldname;
-    let newvalue;
-    let mut cat = Cat {
-        name: "Taro".to_string(),
-        age: 3,
-        parents: ("Tom".to_string(), "Taylor".to_string()),
-    };
-
-    if rng.gen::<f64>() > 0.5 {
-        fieldname = "parents".to_string();
-        newvalue = CatFieldEnum::parents(("Paul".to_string(), "Ada".to_string()))
-    } else {
-        fieldname = "age".to_string();
-        newvalue = CatFieldEnum::age(4)
-    }
-
-    cat.set(newvalue);
-    let fieldvalue = cat.get(fieldname);
+    let field_name = "age".to_string();
+    let value_to_update = 4u32;
+    dog.set(field_name.clone(), value_to_update);
+    let fieldvalue: u32 = dog.get(field_name);
     println!("{:?}", fieldvalue);
+
+    let field_name = "life_expectancy".to_string();
+    let value_to_update = 10u32;
+    dog.set(field_name.clone(), value_to_update);
+    let fieldvalue: u32 = dog.get(field_name);
+    println!("{:?}", fieldvalue);
+
 }
+
 
 ```
 ### output
 ```
-age(4) or name("Jiro")
-age(4) or parents(("Paul", "Ada"))
+"Jiro"
+4
+10
 ```
 
 ## What this macro generates (in this example)
@@ -104,107 +75,52 @@ use std::prelude::rust_2021::*;
 #[macro_use]
 extern crate std;
 use field_accessor::FieldAccessor;
-use rand::Rng;
 struct Dog {
     name: String,
     age: u32,
+    life_expectancy: u32,
 }
-enum DogFieldEnum {
-    name(String),
-    age(u32),
+trait GetterSetter<T> {
+    fn set(&mut self, field_string: String, value: T);
+    fn get(&mut self, field_string: String) -> T;
 }
-#[automatically_derived]
-#[allow(unused_qualifications)]
-impl ::core::fmt::Debug for DogFieldEnum {
-    fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
-        match (&*self,) {
-            (&DogFieldEnum::name(ref __self_0),) => {
-                let debug_trait_builder = &mut ::core::fmt::Formatter::debug_tuple(f, "name");
-                let _ = ::core::fmt::DebugTuple::field(debug_trait_builder, &&(*__self_0));
-                ::core::fmt::DebugTuple::finish(debug_trait_builder)
-            }
-            (&DogFieldEnum::age(ref __self_0),) => {
-                let debug_trait_builder = &mut ::core::fmt::Formatter::debug_tuple(f, "age");
-                let _ = ::core::fmt::DebugTuple::field(debug_trait_builder, &&(*__self_0));
-                ::core::fmt::DebugTuple::finish(debug_trait_builder)
-            }
-        }
-    }
-}
-impl Dog {
-    pub fn get(self, field_string: String) -> DogFieldEnum {
+impl GetterSetter<String> for Dog {
+    fn set(&mut self, field_string: String, value: String) {
         match &*field_string {
-            "name" => DogFieldEnum::name(self.name),
-            "age" => DogFieldEnum::age(self.age),
+            "name" => self.name = value.clone(),
             _ => ::core::panicking::panic_fmt(::core::fmt::Arguments::new_v1(
                 &["invalid field name"],
                 &[],
             )),
         }
     }
-    pub fn set(&mut self, value: DogFieldEnum) -> () {
-        match value {
-            DogFieldEnum::name(v) => self.name = v,
-            DogFieldEnum::age(v) => self.age = v,
-            _ => ::core::panicking::panic_fmt(::core::fmt::Arguments::new_v1(
-                &["invalid field value"],
-                &[],
-            )),
-        }
-    }
-}
-struct Cat {
-    name: String,
-    age: u32,
-    parents: (String, String),
-}
-enum CatFieldEnum {
-    name(String),
-    age(u32),
-    parents((String, String)),
-}
-#[automatically_derived]
-#[allow(unused_qualifications)]
-impl ::core::fmt::Debug for CatFieldEnum {
-    fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
-        match (&*self,) {
-            (&CatFieldEnum::name(ref __self_0),) => {
-                let debug_trait_builder = &mut ::core::fmt::Formatter::debug_tuple(f, "name");
-                let _ = ::core::fmt::DebugTuple::field(debug_trait_builder, &&(*__self_0));
-                ::core::fmt::DebugTuple::finish(debug_trait_builder)
-            }
-            (&CatFieldEnum::age(ref __self_0),) => {
-                let debug_trait_builder = &mut ::core::fmt::Formatter::debug_tuple(f, "age");
-                let _ = ::core::fmt::DebugTuple::field(debug_trait_builder, &&(*__self_0));
-                ::core::fmt::DebugTuple::finish(debug_trait_builder)
-            }
-            (&CatFieldEnum::parents(ref __self_0),) => {
-                let debug_trait_builder = &mut ::core::fmt::Formatter::debug_tuple(f, "parents");
-                let _ = ::core::fmt::DebugTuple::field(debug_trait_builder, &&(*__self_0));
-                ::core::fmt::DebugTuple::finish(debug_trait_builder)
-            }
-        }
-    }
-}
-impl Cat {
-    pub fn get(self, field_string: String) -> CatFieldEnum {
+    fn get(&mut self, field_string: String) -> String {
         match &*field_string {
-            "name" => CatFieldEnum::name(self.name),
-            "age" => CatFieldEnum::age(self.age),
-            "parents" => CatFieldEnum::parents(self.parents),
+            "name" => self.name.clone(),
             _ => ::core::panicking::panic_fmt(::core::fmt::Arguments::new_v1(
                 &["invalid field name"],
                 &[],
             )),
         }
     }
-    pub fn set(&mut self, value: CatFieldEnum) -> () {
-        match value {
-            CatFieldEnum::name(v) => self.name = v,
-            CatFieldEnum::age(v) => self.age = v,
-            CatFieldEnum::parents(v) => self.parents = v,
+}
+impl GetterSetter<u32> for Dog {
+    fn set(&mut self, field_string: String, value: u32) {
+        match &*field_string {
+            "age" => self.age = value.clone(),
+            "life_expectancy" => self.life_expectancy = value.clone(),
             _ => ::core::panicking::panic_fmt(::core::fmt::Arguments::new_v1(
-                &["invalid field value"],
+                &["invalid field name"],
+                &[],
+            )),
+        }
+    }
+    fn get(&mut self, field_string: String) -> u32 {
+        match &*field_string {
+            "age" => self.age.clone(),
+            "life_expectancy" => self.life_expectancy.clone(),
+            _ => ::core::panicking::panic_fmt(::core::fmt::Arguments::new_v1(
+                &["invalid field name"],
                 &[],
             )),
         }

@@ -1,5 +1,5 @@
 use syn::{parse_macro_input, DeriveInput, FieldsNamed};
-use quote::{quote, format_ident};
+use quote::{quote};
 use proc_macro::{self, TokenStream};
 
 #[proc_macro_derive(FieldAccessor)]
@@ -9,38 +9,59 @@ pub fn get(input: TokenStream) -> TokenStream {
     let output = match data {
         syn::Data::Struct(s) => match s.fields {
             syn::Fields::Named(FieldsNamed{named, ..}) => {
-                let idents = named.iter().map(|f| &f.ident);
-                let idents2 = named.iter().map(|f| &f.ident);
-                let idents3 = named.iter().map(|f| &f.ident);
-                let tys2 = named.iter().map(|f| &f.ty).clone();
-                let enumname = format_ident!("{}{}", ident, "FieldEnum");
+                let newnamed = named.clone();
+                let mut set_quotes = vec![];
+                let mut get_quotes = vec![];
+                let mut set_tys = vec![];
+                let mut get_tys = vec![];
+                for name in newnamed.clone().iter() {
+                    if get_tys.contains(&name.ty) {
+
+                    } else {
+                        get_tys.push(name.ty.clone());
+                        set_tys.push(name.ty.clone());
+                        let get_filtered_ident = newnamed.iter().filter(|x| x.ty == name.ty).map(|f| &f.ident);
+                        let set_filtered_ident = newnamed.iter().filter(|x| x.ty == name.ty).map(|f| &f.ident);
+                        set_quotes.push(quote!{
+                            #(
+                                stringify!(#get_filtered_ident) => {
+                                    self.#get_filtered_ident = value.clone()
+                                }
+                            ),*
+                        });
+                        get_quotes.push(quote!{
+                            #(
+                                stringify!(#set_filtered_ident) => {
+                                    self.#set_filtered_ident.clone()
+                                }
+                            ),*
+                        });
+                    }
+                }
                 quote!{
-                    #[derive(Debug)]
-                    enum #enumname{
-                        #(#idents2(#tys2)),*
+                    trait GetterSetter<T> {
+                        fn set(&mut self, field_string: String, value: T);
+                        fn get(&mut self, field_string: String) -> T;
                     }
-
-                    impl #ident {
-                        pub fn get(self, field_string: String) -> #enumname{
-                            match &*field_string {
-                                #(stringify!(#idents) => {
-                                    #enumname::#idents(self.#idents)
-                                }),*
-                                _ => panic!("invalid field name")
+                    
+                    #(
+                        impl GetterSetter<#set_tys> for #ident {
+                            fn set(&mut self, field_string: String, value: #set_tys){
+                                match &*field_string {
+                                    #set_quotes,
+                                    _ => panic!("invalid field name")
+                                }
                             }
-                        }
 
-                        pub fn set(&mut self, value: #enumname) -> (){
-                            
-                            match value {
-                                #(
-                                    #enumname::#idents3(v) => {self.#idents3 = v}
-                                ),*
-                                _ => panic!("invalid field value"),
+                            fn get(&mut self, field_string: String) -> #get_tys {
+                                match &*field_string {
+                                    #get_quotes,
+                                    _ => panic!("invalid field name")
+                                }
                             }
-                            
+
                         }
-                    }
+                    )*
                 }
             }, 
             _ => panic!("unsupported fields"),
