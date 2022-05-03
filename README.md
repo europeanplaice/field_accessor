@@ -3,20 +3,20 @@
 With this procedural macro, a user can dynamically get a field of a struct by a `String` type variable.
 This program is currently experimental and I haven't written test codes yet.
 
-## Usage
+## Installation
 
 ```
 [dependencies]
 field_accessor = {git = "https://github.com/europeanplaice/field_accessor"}
 ```
 
-### Definition
+## About this macro
 This macro provides the two methods for structs by implementing `GetterSetter` trait. Using `get` you can get a field's value dynamically.
-Also, a field's value can be updated by `set`.
+Also, a field's value can be updated by `set`. The functionality is similar to python's `getattr`, `setattr`.
 ```rust
 trait GetterSetter<T> {
-    fn get(&mut self, field_string: String) -> T;
-    fn set(&mut self, field_string: String, value: T);
+    fn get(&mut self, field_string: &String) -> &T;
+    fn set(&mut self, field_string: &String, value: T);
 }
 ```
 
@@ -40,23 +40,24 @@ fn main() {
 
     let field_name = "name".to_string();
     let value_to_update = "Jiro".to_string();
-    dog.set(field_name.clone(), value_to_update);
-    let fieldvalue: String = dog.get(field_name);
+    dog.set(&field_name, value_to_update);
+    let fieldvalue: &String = dog.get(&field_name);
     println!("{:?}", fieldvalue);
 
     let field_name = "age".to_string();
     let value_to_update = 4u32;
-    dog.set(field_name.clone(), value_to_update);
-    let fieldvalue: u32 = dog.get(field_name);
+    dog.set(&field_name, value_to_update);
+    let fieldvalue: &u32 = dog.get(&field_name);
     println!("{:?}", fieldvalue);
 
     let field_name = "life_expectancy".to_string();
     let value_to_update = 10u32;
-    dog.set(field_name.clone(), value_to_update);
-    let fieldvalue: u32 = dog.get(field_name);
+    dog.set(&field_name, value_to_update);
+    let fieldvalue: &u32 = dog.get(&field_name);
     println!("{:?}", fieldvalue);
 
 }
+
 
 
 ```
@@ -81,22 +82,22 @@ struct Dog {
     life_expectancy: u32,
 }
 trait GetterSetter<T> {
-    fn set(&mut self, field_string: String, value: T);
-    fn get(&mut self, field_string: String) -> T;
+    fn get(&mut self, field_string: &String) -> &T;
+    fn set(&mut self, field_string: &String, value: T);
 }
 impl GetterSetter<String> for Dog {
-    fn set(&mut self, field_string: String, value: String) {
-        match &*field_string {
-            "name" => self.name = value.clone(),
+    fn set(&mut self, field_string: &String, value: String) {
+        match &**field_string {
+            "name" => self.name = value,
             _ => ::core::panicking::panic_fmt(::core::fmt::Arguments::new_v1(
                 &["invalid field name"],
                 &[],
             )),
         }
     }
-    fn get(&mut self, field_string: String) -> String {
-        match &*field_string {
-            "name" => self.name.clone(),
+    fn get(&mut self, field_string: &String) -> &String {
+        match &**field_string {
+            "name" => &self.name,
             _ => ::core::panicking::panic_fmt(::core::fmt::Arguments::new_v1(
                 &["invalid field name"],
                 &[],
@@ -105,20 +106,20 @@ impl GetterSetter<String> for Dog {
     }
 }
 impl GetterSetter<u32> for Dog {
-    fn set(&mut self, field_string: String, value: u32) {
-        match &*field_string {
-            "age" => self.age = value.clone(),
-            "life_expectancy" => self.life_expectancy = value.clone(),
+    fn set(&mut self, field_string: &String, value: u32) {
+        match &**field_string {
+            "age" => self.age = value,
+            "life_expectancy" => self.life_expectancy = value,
             _ => ::core::panicking::panic_fmt(::core::fmt::Arguments::new_v1(
                 &["invalid field name"],
                 &[],
             )),
         }
     }
-    fn get(&mut self, field_string: String) -> u32 {
-        match &*field_string {
-            "age" => self.age.clone(),
-            "life_expectancy" => self.life_expectancy.clone(),
+    fn get(&mut self, field_string: &String) -> &u32 {
+        match &**field_string {
+            "age" => &self.age,
+            "life_expectancy" => &self.life_expectancy,
             _ => ::core::panicking::panic_fmt(::core::fmt::Arguments::new_v1(
                 &["invalid field name"],
                 &[],
