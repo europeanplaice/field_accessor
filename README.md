@@ -41,7 +41,11 @@ fn main() {
     let field_name = "name".to_string();
     let value_to_update = "Jiro".to_string();
     dog.set(&field_name, value_to_update).unwrap();
-    let fieldvalue: &String = dog.get(&field_name).unwrap();
+    let value_on_error;
+    let fieldvalue: &String = match dog.get(&"invalid_name".to_string()) {
+        Ok(value) => value,
+        Err(_) => {value_on_error = "Ken".to_string(); &value_on_error},
+    };
     println!("{:?}", fieldvalue);
 
     let field_name = "age".to_string();
@@ -58,12 +62,10 @@ fn main() {
 
 }
 
-
-
 ```
 ### output
 ```
-"Jiro"
+"Ken"
 4
 10
 ```
