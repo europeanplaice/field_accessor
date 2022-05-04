@@ -1,13 +1,13 @@
 # field_accessor
 
-With this procedural macro, a user can dynamically get a field of a struct by a `String` type variable.
+With this procedural macro, you can dynamically get a field of a struct by a `String` type variable.
 This program is currently experimental and I haven't written test codes yet.
-
+This can be useful if you don't know which field you want when compiling.
 ## Installation
 
 ```
 [dependencies]
-field_accessor = {git = "https://github.com/europeanplaice/field_accessor"}
+field_accessor = "0"
 ```
 
 ## About this macro
@@ -20,7 +20,7 @@ trait GetterSetter<T> {
 }
 ```
 
-## Example
+## Usage and Example
 ```rust
 use field_accessor::FieldAccessor;
 
