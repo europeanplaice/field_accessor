@@ -15,8 +15,8 @@ This macro provides the two methods for structs by implementing `GetterSetter` t
 Also, a field's value can be updated by `set`. The functionality is similar to python's `getattr`, `setattr`.
 ```rust
 trait GetterSetter<T> {
-    fn get(&mut self, field_string: &String) -> &T;
-    fn set(&mut self, field_string: &String, value: T);
+    fn get(&mut self, field_string: &String) -> Result<&T, String>;
+    fn set(&mut self, field_string: &String, value: T) -> Result<(), String>;
 }
 ```
 
@@ -40,20 +40,20 @@ fn main() {
 
     let field_name = "name".to_string();
     let value_to_update = "Jiro".to_string();
-    dog.set(&field_name, value_to_update);
-    let fieldvalue: &String = dog.get(&field_name);
+    dog.set(&field_name, value_to_update).unwrap();
+    let fieldvalue: &String = dog.get(&field_name).unwrap();
     println!("{:?}", fieldvalue);
 
     let field_name = "age".to_string();
     let value_to_update = 4u32;
-    dog.set(&field_name, value_to_update);
-    let fieldvalue: &u32 = dog.get(&field_name);
+    dog.set(&field_name, value_to_update).unwrap();
+    let fieldvalue: &u32 = dog.get(&field_name).unwrap();
     println!("{:?}", fieldvalue);
 
     let field_name = "life_expectancy".to_string();
     let value_to_update = 10u32;
-    dog.set(&field_name, value_to_update);
-    let fieldvalue: &u32 = dog.get(&field_name);
+    dog.set(&field_name, value_to_update).unwrap();
+    let fieldvalue: &u32 = dog.get(&field_name).unwrap();
     println!("{:?}", fieldvalue);
 
 }
@@ -82,48 +82,69 @@ struct Dog {
     life_expectancy: u32,
 }
 trait GetterSetter<T> {
-    fn get(&mut self, field_string: &String) -> &T;
-    fn set(&mut self, field_string: &String, value: T);
+    fn get(&mut self, field_string: &String) -> Result<&T, String>;
+    fn set(&mut self, field_string: &String, value: T) -> Result<(), String>;
 }
 impl GetterSetter<String> for Dog {
-    fn set(&mut self, field_string: &String, value: String) {
+    fn get(&mut self, field_string: &String) -> Result<&String, String> {
         match &**field_string {
-            "name" => self.name = value,
-            _ => ::core::panicking::panic_fmt(::core::fmt::Arguments::new_v1(
-                &["invalid field name"],
-                &[],
-            )),
+            "name" => Ok(&self.name),
+            _ => Err({
+                let res = ::alloc::fmt::format(::core::fmt::Arguments::new_v1(
+                    &["invalid field name to get \'", "\'"],
+                    &[::core::fmt::ArgumentV1::new_display(&field_string)],
+                ));
+                res
+            }),
         }
     }
-    fn get(&mut self, field_string: &String) -> &String {
+    fn set(&mut self, field_string: &String, value: String) -> Result<(), String> {
         match &**field_string {
-            "name" => &self.name,
-            _ => ::core::panicking::panic_fmt(::core::fmt::Arguments::new_v1(
-                &["invalid field name"],
-                &[],
-            )),
+            "name" => {
+                self.name = value;
+                Ok(())
+            }
+            _ => Err({
+                let res = ::alloc::fmt::format(::core::fmt::Arguments::new_v1(
+                    &["invalid field name to set \'", "\'"],
+                    &[::core::fmt::ArgumentV1::new_display(&field_string)],
+                ));
+                res
+            }),
         }
     }
 }
 impl GetterSetter<u32> for Dog {
-    fn set(&mut self, field_string: &String, value: u32) {
+    fn get(&mut self, field_string: &String) -> Result<&u32, String> {
         match &**field_string {
-            "age" => self.age = value,
-            "life_expectancy" => self.life_expectancy = value,
-            _ => ::core::panicking::panic_fmt(::core::fmt::Arguments::new_v1(
-                &["invalid field name"],
-                &[],
-            )),
+            "age" => Ok(&self.age),
+            "life_expectancy" => Ok(&self.life_expectancy),
+            _ => Err({
+                let res = ::alloc::fmt::format(::core::fmt::Arguments::new_v1(
+                    &["invalid field name to get \'", "\'"],
+                    &[::core::fmt::ArgumentV1::new_display(&field_string)],
+                ));
+                res
+            }),
         }
     }
-    fn get(&mut self, field_string: &String) -> &u32 {
+    fn set(&mut self, field_string: &String, value: u32) -> Result<(), String> {
         match &**field_string {
-            "age" => &self.age,
-            "life_expectancy" => &self.life_expectancy,
-            _ => ::core::panicking::panic_fmt(::core::fmt::Arguments::new_v1(
-                &["invalid field name"],
-                &[],
-            )),
+            "age" => {
+                self.age = value;
+                Ok(())
+            }
+            "life_expectancy" => {
+                self.life_expectancy = value;
+                Ok(())
+            }
+            _ => Err({
+                let res = ::alloc::fmt::format(::core::fmt::Arguments::new_v1(
+                    &["invalid field name to set \'", "\'"],
+                    &[::core::fmt::ArgumentV1::new_display(&field_string)],
+                ));
+                res
+            }),
         }
     }
 }

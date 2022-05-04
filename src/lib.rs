@@ -25,14 +25,14 @@ pub fn get(input: TokenStream) -> TokenStream {
                         get_quotes.push(quote!{
                             #(
                                 stringify!(#get_filtered_ident) => {
-                                    &self.#get_filtered_ident
+                                    Ok(&self.#get_filtered_ident)
                                 }
                             ),*
                         });
                         set_quotes.push(quote!{
                             #(
                                 stringify!(#set_filtered_ident) => {
-                                    self.#set_filtered_ident = value
+                                    {self.#set_filtered_ident = value; Ok(())}
                                 }
                             ),*
                         });
@@ -40,26 +40,24 @@ pub fn get(input: TokenStream) -> TokenStream {
                 }
                 quote!{
                     trait GetterSetter<T> {
-                        fn get(&mut self, field_string: &String) -> &T;
-                        fn set(&mut self, field_string: &String, value: T);
+                        fn get(&mut self, field_string: &String) -> Result<&T, String>;
+                        fn set(&mut self, field_string: &String, value: T) -> Result<(), String>;
                     }
                     
                     #(
                         impl GetterSetter<#set_tys> for #ident {
-                            fn set(&mut self, field_string: &String, value: #set_tys){
-                                match &**field_string {
-                                    #set_quotes,
-                                    _ => panic!("invalid field name")
-                                }
-                            }
-
-                            fn get(&mut self, field_string: &String) -> &#get_tys {
+                            fn get(&mut self, field_string: &String) -> Result<&#get_tys, String> {
                                 match &**field_string {
                                     #get_quotes,
-                                    _ => panic!("invalid field name")
+                                    _ => Err(format!("invalid field name to get '{}'", field_string)),
                                 }
                             }
-
+                            fn set(&mut self, field_string: &String, value: #set_tys) -> Result<(), String>{
+                                match &**field_string {
+                                    #set_quotes,
+                                    _ => Err(format!("invalid field name to set '{}'", field_string)),
+                                }
+                            }
                         }
                     )*
                 }
