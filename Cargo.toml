@@ -2,6 +2,11 @@
 name = "field_accessor"
 version = "0.1.0"
 edition = "2021"
+authors = ["Tomohiro Endo <europeanplaice@gmail.com>"]
+description = "It gives a power to access a structs field by String dynamically." 
+repository = "https://github.com/europeanplaice/field_accessor"
+readme = "readme.md"
+license = "MIT"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
