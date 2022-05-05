@@ -153,3 +153,67 @@ impl GetterSetter<u32> for Dog {
 ```
 
 This code is generated at compiling.
+
+## Known issues
+
+You need to specify the data type of the returned value. If it is not given,
+the compiler cannot infer the type. This restriction reduces the convenience of using this macro.
+
+```rust
+#[derive(FieldAccessor)]
+struct Dog {
+    name: String,
+    age: u32,
+    life_expectancy: u32,
+}
+
+let mut dog = Dog {
+    name: "Taro".to_string(),
+    age: 3,
+    life_expectancy: 9,
+};
+let fields = vec![
+    "name".to_string(),
+    "age".to_string(),
+    "life_expectancy".to_string(),
+]
+for field_name in fields.into_iter(){
+    let fieldvalue = dog.get(&field_name).unwrap();
+};
+```
+
+This code raises an error.
+```
+let fieldvalue = dog.get(&field_name).unwrap();
+    ----------       ^^^ cannot infer type for type parameter `T` declared on the trait `GetterSetter`
+    |
+    consider giving `fieldvalue` the explicit type `&T`, where the type parameter `T` is specified
+```
+
+A workaround is to replace `get` with `getenum`. This macro defines `(struct name)FieldEnum` inside for you like below.
+```rust
+enum DogFieldEnum {
+    name(String),
+    age(u32),
+    life_expectancy(u32),
+}
+```
+You can use this as a return type. With this enum you can get any field's value without concerning a field's type.
+```rust
+let mut dog = Dog {
+    name: "Taro".to_string(),
+    age: 3,
+    life_expectancy: 9,
+};
+let fields = vec![
+    "name".to_string(),
+    "age".to_string(),
+    "life_expectancy".to_string(),
+];
+let mut fieldvalues: Vec<DogFieldEnum> = vec![];
+for field_name in fields.into_iter(){
+    fieldvalues.push(dog.getenum(&field_name).unwrap());
+};
+assert_eq!(fieldvalues[0], DogFieldEnum::name("Taro".to_string()));
+assert_eq!(fieldvalues[1], DogFieldEnum::age(3));
+```
