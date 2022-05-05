@@ -1,5 +1,3 @@
-use field_accessor::FieldAccessor;
-
 #[cfg(test)]
 mod tests_simple_struct {
     use field_accessor::FieldAccessor;

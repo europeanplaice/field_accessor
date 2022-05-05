@@ -14,22 +14,21 @@ pub fn get(input: TokenStream) -> TokenStream {
                 let tys = named.iter().map(|f| &f.ty).clone();
                 let enumname = format_ident!("{}{}", ident, "FieldEnum");
 
-                let newnamed = named.clone();
                 let mut set_quotes = vec![];
                 let mut get_quotes = vec![];
                 let mut set_tys = vec![];
                 let mut get_tys = vec![];
 
-                for name in newnamed.clone().iter() {
+                for name in named.clone().iter() {
                     if get_tys.contains(&name.ty) {
                     } else {
                         get_tys.push(name.ty.clone());
                         set_tys.push(name.ty.clone());
-                        let get_filtered_ident = newnamed
+                        let get_filtered_ident = named
                             .iter()
                             .filter(|x| x.ty == name.ty)
                             .map(|f| &f.ident);
-                        let set_filtered_ident = newnamed
+                        let set_filtered_ident = named
                             .iter()
                             .filter(|x| x.ty == name.ty)
                             .map(|f| &f.ident);
