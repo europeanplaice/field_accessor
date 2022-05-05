@@ -42,7 +42,7 @@ fn main() {
     let value_to_update = "Jiro".to_string();
     dog.set(&field_name, value_to_update).unwrap();
     let value_on_error;
-    let fieldvalue: &String = match dog.get(&"invalid_name".to_string()) {
+    let fieldvalue: &String = match dog.get(&"invalid_field".to_string()) {
         Ok(value) => value,
         Err(_) => {value_on_error = "Ken".to_string(); &value_on_error},
     };
@@ -82,6 +82,149 @@ struct Dog {
     name: String,
     age: u32,
     life_expectancy: u32,
+}
+enum DogFieldEnum {
+    name(String),
+    age(u32),
+    life_expectancy(u32),
+}
+#[automatically_derived]
+#[allow(unused_qualifications)]
+impl ::core::fmt::Debug for DogFieldEnum {
+    fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
+        match (&*self,) {
+            (&DogFieldEnum::name(ref __self_0),) => {
+                let debug_trait_builder = &mut ::core::fmt::Formatter::debug_tuple(f, "name");
+                let _ = ::core::fmt::DebugTuple::field(debug_trait_builder, &&(*__self_0));
+                ::core::fmt::DebugTuple::finish(debug_trait_builder)
+            }
+            (&DogFieldEnum::age(ref __self_0),) => {
+                let debug_trait_builder = &mut ::core::fmt::Formatter::debug_tuple(f, "age");
+                let _ = ::core::fmt::DebugTuple::field(debug_trait_builder, &&(*__self_0));
+                ::core::fmt::DebugTuple::finish(debug_trait_builder)
+            }
+            (&DogFieldEnum::life_expectancy(ref __self_0),) => {
+                let debug_trait_builder =
+                    &mut ::core::fmt::Formatter::debug_tuple(f, "life_expectancy");
+                let _ = ::core::fmt::DebugTuple::field(debug_trait_builder, &&(*__self_0));
+                ::core::fmt::DebugTuple::finish(debug_trait_builder)
+            }
+        }
+    }
+}
+impl ::core::marker::StructuralPartialEq for DogFieldEnum {}
+#[automatically_derived]
+#[allow(unused_qualifications)]
+impl ::core::cmp::PartialEq for DogFieldEnum {
+    #[inline]
+    fn eq(&self, other: &DogFieldEnum) -> bool {
+        {
+            let __self_vi = ::core::intrinsics::discriminant_value(&*self);
+            let __arg_1_vi = ::core::intrinsics::discriminant_value(&*other);
+            if true && __self_vi == __arg_1_vi {
+                match (&*self, &*other) {
+                    (&DogFieldEnum::name(ref __self_0), &DogFieldEnum::name(ref __arg_1_0)) => {
+                        (*__self_0) == (*__arg_1_0)
+                    }
+                    (&DogFieldEnum::age(ref __self_0), &DogFieldEnum::age(ref __arg_1_0)) => {
+                        (*__self_0) == (*__arg_1_0)
+                    }
+                    (
+                        &DogFieldEnum::life_expectancy(ref __self_0),
+                        &DogFieldEnum::life_expectancy(ref __arg_1_0),
+                    ) => (*__self_0) == (*__arg_1_0),
+                    _ => unsafe { ::core::intrinsics::unreachable() },
+                }
+            } else {
+                false
+            }
+        }
+    }
+    #[inline]
+    fn ne(&self, other: &DogFieldEnum) -> bool {
+        {
+            let __self_vi = ::core::intrinsics::discriminant_value(&*self);
+            let __arg_1_vi = ::core::intrinsics::discriminant_value(&*other);
+            if true && __self_vi == __arg_1_vi {
+                match (&*self, &*other) {
+                    (&DogFieldEnum::name(ref __self_0), &DogFieldEnum::name(ref __arg_1_0)) => {
+                        (*__self_0) != (*__arg_1_0)
+                    }
+                    (&DogFieldEnum::age(ref __self_0), &DogFieldEnum::age(ref __arg_1_0)) => {
+                        (*__self_0) != (*__arg_1_0)
+                    }
+                    (
+                        &DogFieldEnum::life_expectancy(ref __self_0),
+                        &DogFieldEnum::life_expectancy(ref __arg_1_0),
+                    ) => (*__self_0) != (*__arg_1_0),
+                    _ => unsafe { ::core::intrinsics::unreachable() },
+                }
+            } else {
+                true
+            }
+        }
+    }
+}
+#[automatically_derived]
+#[allow(unused_qualifications)]
+impl ::core::cmp::PartialOrd for DogFieldEnum {
+    #[inline]
+    fn partial_cmp(&self, other: &DogFieldEnum) -> ::core::option::Option<::core::cmp::Ordering> {
+        {
+            let __self_vi = ::core::intrinsics::discriminant_value(&*self);
+            let __arg_1_vi = ::core::intrinsics::discriminant_value(&*other);
+            if true && __self_vi == __arg_1_vi {
+                match (&*self, &*other) {
+                    (&DogFieldEnum::name(ref __self_0), &DogFieldEnum::name(ref __arg_1_0)) => {
+                        match ::core::cmp::PartialOrd::partial_cmp(&(*__self_0), &(*__arg_1_0)) {
+                            ::core::option::Option::Some(::core::cmp::Ordering::Equal) => {
+                                ::core::option::Option::Some(::core::cmp::Ordering::Equal)
+                            }
+                            cmp => cmp,
+                        }
+                    }
+                    (&DogFieldEnum::age(ref __self_0), &DogFieldEnum::age(ref __arg_1_0)) => {
+                        match ::core::cmp::PartialOrd::partial_cmp(&(*__self_0), &(*__arg_1_0)) {
+                            ::core::option::Option::Some(::core::cmp::Ordering::Equal) => {
+                                ::core::option::Option::Some(::core::cmp::Ordering::Equal)
+                            }
+                            cmp => cmp,
+                        }
+                    }
+                    (
+                        &DogFieldEnum::life_expectancy(ref __self_0),
+                        &DogFieldEnum::life_expectancy(ref __arg_1_0),
+                    ) => match ::core::cmp::PartialOrd::partial_cmp(&(*__self_0), &(*__arg_1_0)) {
+                        ::core::option::Option::Some(::core::cmp::Ordering::Equal) => {
+                            ::core::option::Option::Some(::core::cmp::Ordering::Equal)
+                        }
+                        cmp => cmp,
+                    },
+                    _ => unsafe { ::core::intrinsics::unreachable() },
+                }
+            } else {
+                ::core::cmp::PartialOrd::partial_cmp(&__self_vi, &__arg_1_vi)
+            }
+        }
+    }
+}
+#[automatically_derived]
+#[allow(unused_qualifications)]
+impl ::core::clone::Clone for DogFieldEnum {
+    #[inline]
+    fn clone(&self) -> DogFieldEnum {
+        match (&*self,) {
+            (&DogFieldEnum::name(ref __self_0),) => {
+                DogFieldEnum::name(::core::clone::Clone::clone(&(*__self_0)))
+            }
+            (&DogFieldEnum::age(ref __self_0),) => {
+                DogFieldEnum::age(::core::clone::Clone::clone(&(*__self_0)))
+            }
+            (&DogFieldEnum::life_expectancy(ref __self_0),) => {
+                DogFieldEnum::life_expectancy(::core::clone::Clone::clone(&(*__self_0)))
+            }
+        }
+    }
 }
 trait GetterSetter<T> {
     fn get(&mut self, field_string: &String) -> Result<&T, String>;
@@ -143,6 +286,22 @@ impl GetterSetter<u32> for Dog {
             _ => Err({
                 let res = ::alloc::fmt::format(::core::fmt::Arguments::new_v1(
                     &["invalid field name to set \'", "\'"],
+                    &[::core::fmt::ArgumentV1::new_display(&field_string)],
+                ));
+                res
+            }),
+        }
+    }
+}
+impl Dog {
+    fn getenum(&mut self, field_string: &String) -> Result<DogFieldEnum, String> {
+        match &**field_string {
+            "name" => Ok(DogFieldEnum::name(self.name.clone())),
+            "age" => Ok(DogFieldEnum::age(self.age.clone())),
+            "life_expectancy" => Ok(DogFieldEnum::life_expectancy(self.life_expectancy.clone())),
+            _ => Err({
+                let res = ::alloc::fmt::format(::core::fmt::Arguments::new_v1(
+                    &["invalid field name to get \'", "\'"],
                     &[::core::fmt::ArgumentV1::new_display(&field_string)],
                 ));
                 res
