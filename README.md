@@ -1,7 +1,7 @@
 # field_accessor
 
 With this procedural macro, you can dynamically get a field of a struct by a `String` type variable.
-This program is currently experimental and I haven't written test codes yet.
+This program is currently experimental.
 This can be useful if you don't know which field you want when compiling.
 ## Installation
 
