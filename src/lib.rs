@@ -134,17 +134,18 @@ pub fn derive(input: TokenStream) -> TokenStream {
                     }
 
                     #[derive(Debug, PartialEq, PartialOrd, Clone)]
+                    #[allow(non_camel_case_types)]
                     enum #enumname{
                         #(#idents_enum(#tys)),*
                     }
 
                     trait GetterSetter<T> {
-                        fn get(&mut self, field_string: &String) -> Result<&T, String>;
+                        fn get(&self, field_string: &String) -> Result<&T, String>;
                         fn set(&mut self, field_string: &String, value: T) -> Result<(), String>;
                     }
                     #(
                         impl GetterSetter<#set_tys> for #ident {
-                            fn get(&mut self, field_string: &String) -> Result<&#get_tys, String> {
+                            fn get(&self, field_string: &String) -> Result<&#get_tys, String> {
                                 match &**field_string {
                                     #get_quotes,
                                     _ => Err(format!("invalid field name to get '{}'", field_string)),

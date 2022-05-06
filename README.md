@@ -1,5 +1,7 @@
 # field_accessor
 
+<img src="img/definition.gif" width="55%">
+
 With this procedural macro, you can dynamically get and update a field of a struct by a `String` type variable.
 This program is currently experimental.
 This can be useful if you don't know which field you want when compiling.
@@ -21,6 +23,8 @@ trait GetterSetter<T> {
 ```
 
 ## Usage and Example
+![run](img/run.gif)
+
 ```rust
 use field_accessor::FieldAccessor;
 
