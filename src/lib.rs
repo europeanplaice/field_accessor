@@ -10,14 +10,20 @@ pub fn get(input: TokenStream) -> TokenStream {
         syn::Data::Struct(s) => match s.fields {
             syn::Fields::Named(FieldsNamed { named, .. }) => {
                 let idents_enum = named.iter().map(|f| &f.ident);
-                let idents2_getenum = named.iter().map(|f| &f.ident);
+                let idents_getenum = named.iter().map(|f| &f.ident);
                 let tys = named.iter().map(|f| &f.ty).clone();
+                let tys_for_structinfo = named.iter().map(|f| &f.ty).clone();
                 let enumname = format_ident!("{}{}", ident, "FieldEnum");
+                let structinfo = format_ident!("{}{}", ident, "StructInfo");
 
                 let mut set_quotes = vec![];
                 let mut get_quotes = vec![];
                 let mut set_tys = vec![];
                 let mut get_tys = vec![];
+
+                let field_idents = named
+                    .iter()
+                    .map(|f| &f.ident);
 
                 for name in named.clone().iter() {
                     if get_tys.contains(&name.ty) {
@@ -50,6 +56,13 @@ pub fn get(input: TokenStream) -> TokenStream {
                 }
                 quote! {
 
+                    #[derive(Debug)]
+                    struct #structinfo {
+                        field_names: Vec<String>,
+                        field_types: Vec<String>,
+                        struct_name: String
+                    }
+
                     #[derive(Debug, PartialEq, PartialOrd, Clone)]
                     enum #enumname{
                         #(#idents_enum(#tys)),*
@@ -78,11 +91,18 @@ pub fn get(input: TokenStream) -> TokenStream {
                     impl #ident {
                         fn getenum(&mut self, field_string: &String) -> Result<#enumname, String> {
                             match &**field_string {
-                                #(stringify!(#idents2_getenum) => {
-                                    Ok(#enumname::#idents2_getenum(self.#idents2_getenum.clone()))
+                                #(stringify!(#idents_getenum) => {
+                                    Ok(#enumname::#idents_getenum(self.#idents_getenum.clone()))
                                 }),*
                                 _ => Err(format!("invalid field name to get '{}'", field_string)),
                             }
+                        }
+
+                        fn getstructinfo(&self) -> #structinfo {
+                            #structinfo {
+                                field_names: vec![#(stringify!(#field_idents).to_string()),*],
+                                field_types: vec![#(stringify!(#tys_for_structinfo).to_string()),*],
+                                struct_name: stringify!(#ident).to_string()}
                         }
                     }
                 }
