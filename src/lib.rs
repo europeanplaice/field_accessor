@@ -2,8 +2,9 @@ use proc_macro::{self, TokenStream};
 use quote::{quote, format_ident};
 use syn::{parse_macro_input, DeriveInput, FieldsNamed};
 
+/// With this procedural macro, you can dynamically get and update a field of a struct by a `String` type variable.
 #[proc_macro_derive(FieldAccessor)]
-pub fn get(input: TokenStream) -> TokenStream {
+pub fn derive(input: TokenStream) -> TokenStream {
     let DeriveInput { ident, data, .. } = parse_macro_input!(input);
 
     let output = match data {

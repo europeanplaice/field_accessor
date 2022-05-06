@@ -1,6 +1,6 @@
 # field_accessor
 
-With this procedural macro, you can dynamically get a field of a struct by a `String` type variable.
+With this procedural macro, you can dynamically get and update a field of a struct by a `String` type variable.
 This program is currently experimental.
 This can be useful if you don't know which field you want when compiling.
 ## Installation
@@ -137,7 +137,7 @@ assert_eq!(fieldvalues[1], DogFieldEnum::age(3));
 ```
 
 ## Getting struct's information
-You can get the information of the struct with `(field name)StructInfo`.
+You can get the information of the struct with `(field name)StructInfo` by calling `getstructinfo`.
 
 ### Definition of `(field name)StructInfo`
 ```rust
