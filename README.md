@@ -112,7 +112,7 @@ let fieldvalue = dog.get(&field_name).unwrap();
     consider giving `fieldvalue` the explicit type `&T`, where the type parameter `T` is specified
 ```
 
-A workaround is to replace `get` with `getenum`. This macro defines `(struct name)FieldEnum` inside for you like below.
+A workaround is to replace `get` with `getenum`. This macro defines `(struct name)FieldEnum` behind the scenes for you like below.
 ```rust
 enum DogFieldEnum {
     name(String),
