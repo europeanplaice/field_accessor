@@ -44,7 +44,7 @@ mod tests_simple_struct {
 
     #[test]
     fn test_error() {
-        let mut dog = Dog {
+        let dog = Dog {
             name: "Taro".to_string(),
             age: 3,
             life_expectancy: 9,

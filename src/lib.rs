@@ -177,10 +177,12 @@ pub fn derive(input: TokenStream) -> TokenStream {
                         }
                     }
                 }
-            }
-            _ => panic!("unsupported fields"),
+            },
+            syn::Fields::Unnamed(_) => panic!("Only NamedFields is supported"),
+            syn::Fields::Unit => panic!("Only NamedFields is supported"),
         },
-        _ => panic!("unsupported data"),
+        syn::Data::Enum(_) => panic!("Enum is not supported. Only struct is supported"),
+        syn::Data::Union(_) => panic!("Union is not supported. Only struct is supported"),
     };
     output.into()
 }
