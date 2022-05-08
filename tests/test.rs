@@ -56,7 +56,7 @@ mod tests_simple_struct {
 
     #[test]
     fn test_iterate_with_enum() {
-        let mut dog = Dog {
+        let dog = Dog {
             name: "Taro".to_string(),
             age: 3,
             life_expectancy: 9,
@@ -117,7 +117,7 @@ mod tests_getstructinfo{
 
     #[test]
     fn test_tests_getstructinfo(){
-        let mut dog = Dog {
+        let dog = Dog {
             name: "Taro".to_string(),
             age: 3,
             life_expectancy: 9,

@@ -2,9 +2,8 @@
 
 <img src="img/definition.gif" width="55%">
 
-With this procedural macro, you can dynamically get and update a field of a struct by a `String` type variable.
-This program is currently experimental.
-This can be useful if you don't know which field you want when compiling.
+With this procedural macro, you can dynamically get and update a field of the struct by a `String` type variable.
+It can be good for you if you don't know which field you want when compiling. The functionality is similar to python's `getattr`, `setattr`.
 ## Installation
 
 ```
@@ -13,14 +12,47 @@ field_accessor = "0"
 ```
 
 ## About this macro
-This macro provides the two methods for structs by implementing `GetterSetter` trait. Using `get` you can get a field's value dynamically.
-Also, a field's value can be updated by `set`. The functionality is similar to python's `getattr`, `setattr`.
+This macro provides the four methods for structs. Only for `get`, `set`, to deal with different types of each field, I defined `GetterSetter<T>` trait and implemented it for each type.
+
 ```rust
 trait GetterSetter<T> {
-    fn get(&mut self, field_string: &String) -> Result<&T, String>;
+    fn get(&self, field_string: &String) -> Result<&T, String>;
     fn set(&mut self, field_string: &String, value: T) -> Result<(), String>;
 }
+
+//implement for each type
+impl GetterSetter<String> for StructName {
+    fn get(&self, field_string: &String) -> Result<&String, String>;
+    fn set(&mut self, field_string: &String, value: String) -> Result<(), String>;
+}
+impl GetterSetter<u32> for StructName {
+    fn get(&self, field_string: &String) -> Result<&u32, String>;
+    fn set(&mut self, field_string: &String, value: u32) -> Result<(), String>;
+}
+etc...
 ```
+
+### `get`
+```rust
+fn get(&self, field_string: &String) -> Result<&T, String>;
+```
+It returns a field's value. Note that you need to specify the return type.
+### `set`
+```rust
+fn set(&mut self, field_string: &String, value: String) -> Result<(), String>;
+```
+It updates a field's value.
+### `getenum`
+```rust
+fn getenum(&self, field_string: &String) -> Result<(StructName)FieldEnum, String>;
+```
+It returns a field's value like as `get` method, but the return type is enum. This method is helpful when field types vary. I will explain about enum later.
+
+### `getstructinfo`
+```rust
+fn getstructinfo(&self) -> (StructName)StructInfo;
+```
+You can extract a struct's field names, types, and a struct name.
 
 ## Usage and Example
 ![run](img/run.gif)
@@ -112,7 +144,7 @@ let fieldvalue = dog.get(&field_name).unwrap();
     consider giving `fieldvalue` the explicit type `&T`, where the type parameter `T` is specified
 ```
 
-A workaround is to replace `get` with `getenum`. This macro defines `(struct name)FieldEnum` inside for you like below.
+A workaround is to replace `get` with `getenum`. This macro defines `(struct name)FieldEnum` behind the scenes for you like below.
 ```rust
 enum DogFieldEnum {
     name(String),
@@ -168,3 +200,6 @@ name("Jiro")
 age(4)
 life_expectancy(10)
 ```
+
+## Author
+Tomohiro Endo (europeanplaice@gmail.com)

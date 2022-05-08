@@ -160,7 +160,7 @@ pub fn derive(input: TokenStream) -> TokenStream {
                         }
                     )*
                     impl #ident {
-                        fn getenum(&mut self, field_string: &String) -> Result<#enumname, String> {
+                        fn getenum(&self, field_string: &String) -> Result<#enumname, String> {
                             match &**field_string {
                                 #(stringify!(#idents_getenum) => {
                                     Ok(#enumname::#idents_getenum(self.#idents_getenum.clone()))
