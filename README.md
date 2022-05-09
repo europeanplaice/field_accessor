@@ -37,11 +37,31 @@ etc...
 fn get(&self, field_string: &String) -> Result<&T, String>;
 ```
 It returns a field's value. Note that you need to specify the return type.
+### `get_mut`
+```rust
+fn get_mut(&mut self, field_string: &String) -> Result<&mut T, String>;
+```
+Returns a mutable reference to the field corresponding to the field_string.
 ### `set`
 ```rust
 fn set(&mut self, field_string: &String, value: String) -> Result<(), String>;
 ```
 It updates a field's value.
+### `take`
+```rust
+fn take(&mut self, field_string: &String) -> Result<T, String>;
+```
+Replaces a field's value with the default value of T, returning the previous field's value.
+### `swap`
+```rust
+fn swap(&mut self, field_string: &String, field_string_y: &String) -> Result<(), String>;
+```
+Swaps the values at two fields, without deinitializing either one.
+### `replace`
+```rust
+fn replace(&mut self, field_string: &String, src: T) -> Result<T, String>;
+```
+Moves src into the field, returning the previous field's value.
 ### `getenum`
 ```rust
 fn getenum(&self, field_string: &String) -> Result<(StructName)FieldEnum, String>;

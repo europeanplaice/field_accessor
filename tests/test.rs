@@ -73,6 +73,73 @@ mod tests_simple_struct {
         assert_eq!(fieldvalues[0], DogFieldEnum::name("Taro".to_string()));
         assert_eq!(fieldvalues[1], DogFieldEnum::age(3));
     }
+
+    #[test]
+    fn test_get_mut(){
+        let mut dog = Dog {
+            name: "Taro".to_string(),
+            age: 3,
+            life_expectancy: 9,
+        };
+        let v: &mut String = dog.get_mut(&"name".to_string()).unwrap();
+        *v = "Jiro".to_string();
+        assert_eq!(dog.name, "Jiro".to_string());
+    }
+}
+
+#[cfg(test)]
+mod test_mem{
+    use field_accessor::FieldAccessor;
+
+    #[derive(FieldAccessor)]
+    pub struct Dog {
+        name: String,
+        age: u32,
+        life_expectancy: u32,
+        friends: Vec<String>,
+    }
+    #[test]
+    fn test_take() {
+        let mut dog = Dog {
+            name: "Taro".to_string(),
+            age: 3,
+            life_expectancy: 9,
+            friends: vec!["Mike".to_string(), "Nozomi".to_string()],
+        };
+        let field_name = "name".to_string();
+        let v: String = dog.take(&field_name).unwrap();
+        assert_eq!(v, "Taro".to_string());
+        assert_eq!(dog.name, "".to_string());
+    }
+
+    #[test]
+    fn test_replace() {
+        let mut dog = Dog {
+            name: "Taro".to_string(),
+            age: 3,
+            life_expectancy: 9,
+            friends: vec!["Mike".to_string(), "Nozomi".to_string()],
+        };
+        let field_name = "name".to_string();
+        let v: String = dog.replace(&field_name, "Taro_replaced".to_string()).unwrap();
+        assert_eq!(v, "Taro".to_string());
+        assert_eq!(dog.name, "Taro_replaced".to_string());
+    }
+
+    #[test]
+    fn test_swap() {
+        let mut dog = Dog {
+            name: "Taro".to_string(),
+            age: 3,
+            life_expectancy: 9,
+            friends: vec!["Mike".to_string(), "Nozomi".to_string()],
+        };
+        let field_name = "age".to_string();
+        let field_name_for_swap = "life_expectancy".to_string();
+        dog.swap(&field_name, &field_name_for_swap).unwrap();
+        assert_eq!(dog.age, 9);
+        assert_eq!(dog.life_expectancy, 3);
+    }
 }
 
 #[cfg(test)]
