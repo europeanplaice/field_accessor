@@ -10,7 +10,7 @@ license = "MIT"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 categories = ["data-structures"]
-keywords = ["getattr", "setattr", "struct", "getter", "setter", "macro", "proc-macro"]
+keywords = ["getattr", "setattr", "getter", "setter", "proc-macro"]
 [lib]
 proc-macro = true
 
