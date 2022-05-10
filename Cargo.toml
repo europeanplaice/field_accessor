@@ -1,14 +1,16 @@
 [package]
 name = "field_accessor"
-version = "0.5.0"
+version = "0.5.1"
 edition = "2021"
 authors = ["Tomohiro Endo <europeanplaice@gmail.com>"]
-description = "It gives a power to access a structs field by String dynamically." 
+description = "A procedural macro to get and set a struct field by String dynamically." 
 repository = "https://github.com/europeanplaice/field_accessor"
 readme = "readme.md"
 license = "MIT"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+categories = ["data-structures"]
+keywords = ["getattr", "setattr", "struct", "getter", "setter", "macro", "proc-macro"]
 [lib]
 proc-macro = true
 
