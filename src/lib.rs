@@ -11,8 +11,8 @@ pub fn derive(input: TokenStream) -> TokenStream {
             syn::Fields::Named(FieldsNamed { named, .. }) => {
                 let idents_enum = named.iter().map(|f| &f.ident);
                 let idents_getenum = idents_enum.clone();
-                let tys = named.iter().map(|f| &f.ty);
-                let tys_for_structinfo = tys.clone();
+                let tys_enum = named.iter().map(|f| &f.ty);
+                let tys_for_structinfo = tys_enum.clone();
                 let enumname = format_ident!("{}{}", ident, "FieldEnum");
                 let structinfo = format_ident!("{}{}", ident, "StructInfo");
 
@@ -47,8 +47,7 @@ pub fn derive(input: TokenStream) -> TokenStream {
                 }
 
                 for name in named.clone().iter() {
-                    if get_tys.contains(&name.ty) {
-                    } else {
+                    if !get_tys.contains(&name.ty) {
                         get_tys.push(name.ty.clone());
                         get_mut_tys.push(name.ty.clone());
                         take_tys.push(name.ty.clone());
@@ -116,7 +115,7 @@ pub fn derive(input: TokenStream) -> TokenStream {
                     #[derive(Debug, PartialEq, PartialOrd, Clone)]
                     #[allow(non_camel_case_types)]
                     enum #enumname{
-                        #(#idents_enum(#tys)),*
+                        #(#idents_enum(#tys_enum)),*
                     }
 
                     trait GetterSetter<T> {
@@ -182,7 +181,7 @@ pub fn derive(input: TokenStream) -> TokenStream {
                                 #(stringify!(#idents_getenum) => {
                                     Ok(#enumname::#idents_getenum(self.#idents_getenum.clone()))
                                 }),*
-                                _ => Err(format!("invalid field name to get '{}'", field_string)),
+                                _ => Err(format!("invalid field name to getenum '{}'", field_string)),
                             }
                         }
 

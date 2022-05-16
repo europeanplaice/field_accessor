@@ -8,8 +8,9 @@ mod tests_simple_struct {
         age: u32,
         life_expectancy: u32,
     }
+
     #[test]
-    fn test_invalid_name() {
+    fn test_get_on_invalid_name() {
         let mut dog = Dog {
             name: "Taro".to_string(),
             age: 3,
@@ -28,8 +29,21 @@ mod tests_simple_struct {
         };
         assert_eq!(fieldvalue, &"Ken".to_string());
     }
+
     #[test]
-    fn test_simple() {
+    fn test_get_mut(){
+        let mut dog = Dog {
+            name: "Taro".to_string(),
+            age: 3,
+            life_expectancy: 9,
+        };
+        let v: &mut String = dog.get_mut(&"name".to_string()).unwrap();
+        *v = "Jiro".to_string();
+        assert_eq!(dog.name, "Jiro".to_string());
+    }
+
+    #[test]
+    fn test_set() {
         let mut dog = Dog {
             name: "Taro".to_string(),
             age: 3,
@@ -43,7 +57,7 @@ mod tests_simple_struct {
     }
 
     #[test]
-    fn test_error() {
+    fn test_get_error() {
         let dog = Dog {
             name: "Taro".to_string(),
             age: 3,
@@ -72,19 +86,9 @@ mod tests_simple_struct {
         };
         assert_eq!(fieldvalues[0], DogFieldEnum::name("Taro".to_string()));
         assert_eq!(fieldvalues[1], DogFieldEnum::age(3));
+        assert_eq!(fieldvalues[2], DogFieldEnum::life_expectancy(9));
     }
 
-    #[test]
-    fn test_get_mut(){
-        let mut dog = Dog {
-            name: "Taro".to_string(),
-            age: 3,
-            life_expectancy: 9,
-        };
-        let v: &mut String = dog.get_mut(&"name".to_string()).unwrap();
-        *v = "Jiro".to_string();
-        assert_eq!(dog.name, "Jiro".to_string());
-    }
 }
 
 #[cfg(test)]
@@ -98,6 +102,7 @@ mod test_mem{
         life_expectancy: u32,
         friends: Vec<String>,
     }
+
     #[test]
     fn test_take() {
         let mut dog = Dog {
@@ -143,7 +148,7 @@ mod test_mem{
 }
 
 #[cfg(test)]
-mod tests_vector {
+mod tests_vector_type {
     use field_accessor::FieldAccessor;
 
     #[derive(FieldAccessor)]
@@ -155,7 +160,7 @@ mod tests_vector {
     }
 
     #[test]
-    fn test_simple() {
+    fn test_simple_vector_field() {
         let mut dog = Dog {
             name: "Taro".to_string(),
             age: 3,
@@ -183,7 +188,7 @@ mod tests_getstructinfo{
     }
 
     #[test]
-    fn test_tests_getstructinfo(){
+    fn test_getstructinfo(){
         let dog = Dog {
             name: "Taro".to_string(),
             age: 3,
