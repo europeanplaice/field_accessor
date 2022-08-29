@@ -15,6 +15,7 @@ pub fn derive(input: TokenStream) -> TokenStream {
                 let tys_for_structinfo = tys_enum.clone();
                 let enumname = format_ident!("{}{}", ident, "FieldEnum");
                 let structinfo = format_ident!("{}{}", ident, "StructInfo");
+                let gettersetter = format_ident!("{}{}", ident, "GetterSetter");
 
                 let mut get_quotes = vec![];
                 let mut get_mut_quotes = vec![];
@@ -80,14 +81,14 @@ pub fn derive(input: TokenStream) -> TokenStream {
                         take_quotes.push(quote! {
                             #(
                                 stringify!(#take_filtered_ident) => {
-                                    Ok(mem::take(&mut self.#take_filtered_ident))
+                                    Ok(std::mem::take(&mut self.#take_filtered_ident))
                                 }
                             ),*
                         });
                         replace_quotes.push(quote! {
                             #(
                                 stringify!(#replace_filtered_ident) => {
-                                    Ok(mem::replace(&mut self.#replace_filtered_ident, src))
+                                    Ok(std::mem::replace(&mut self.#replace_filtered_ident, src))
                                 }
                             ),*
                         });
@@ -103,8 +104,6 @@ pub fn derive(input: TokenStream) -> TokenStream {
                 }
                 quote! {
 
-                    use std::mem;
-
                     #[derive(Debug, Clone)]
                     struct #structinfo {
                         field_names: Vec<String>,
@@ -118,7 +117,7 @@ pub fn derive(input: TokenStream) -> TokenStream {
                         #(#idents_enum(#tys_enum)),*
                     }
 
-                    trait GetterSetter<T> {
+                    trait #gettersetter<T> {
                         fn get(&self, field_string: &String) -> Result<&T, String>;
                         fn get_mut(&mut self, field_string: &String) -> Result<&mut T, String>;
                         fn take(&mut self, field_string: &String) -> Result<T, String>;
@@ -127,7 +126,7 @@ pub fn derive(input: TokenStream) -> TokenStream {
                     }
 
                     #(
-                        impl GetterSetter<#set_tys> for #ident {
+                        impl #gettersetter<#set_tys> for #ident {
                             fn get(&self, field_string: &String) -> Result<&#get_tys, String> {
                                 match &**field_string {
                                     #get_quotes,
@@ -168,7 +167,7 @@ pub fn derive(input: TokenStream) -> TokenStream {
                             match (&**field_string, &**field_string_y) {
                                 #(
                                     (stringify!(#swap_ident), stringify!(#swap_ident2)) => {
-                                        mem::swap::<#swap_tys>(&mut self.#swap_ident, &mut self.#swap_ident2);
+                                        std::mem::swap::<#swap_tys>(&mut self.#swap_ident, &mut self.#swap_ident2);
                                         Ok(())
                                     }
                                 ),*

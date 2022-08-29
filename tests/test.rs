@@ -204,3 +204,25 @@ mod tests_getstructinfo{
         assert_eq!(fieldvalues[2], DogFieldEnum::life_expectancy(9));
     }
 }
+
+
+#[cfg(test)]
+mod tests_multiple_derive{
+
+    #[test]
+    fn test_multiple_derive(){
+
+        use field_accessor::FieldAccessor;
+
+        #[derive(FieldAccessor)]
+        struct Test {
+            pub name: String,
+        }
+
+        #[derive(FieldAccessor)]
+        struct Test2 {
+            pub name: String,
+        }           
+    }
+}
+
