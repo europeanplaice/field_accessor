@@ -226,3 +226,30 @@ mod tests_multiple_derive{
     }
 }
 
+
+#[cfg(test)]
+mod tests_nested_structs{
+
+    #[test]
+    fn test_nested_structs(){
+        use field_accessor::FieldAccessor;
+
+        // Todo Find an elegant way to use FieldAccessor without passing these traits to derive.
+        #[derive(PartialEq, PartialOrd, Default, Clone, Debug, FieldAccessor)]
+        pub struct UserData {
+            some_field: String
+        }
+        
+        #[derive(FieldAccessor)]
+        pub struct User {
+            name: String,
+            data: UserData
+        }
+
+        let user_data = UserData{some_field: "some value".to_string()};
+        let my_user = User{name: "aGoodName".to_string(), data: user_data};
+        let field_name = "name".to_string();
+        let name: &String = my_user.get(&field_name).unwrap();
+        assert_eq!(*name, "aGoodName".to_string());
+    }
+}
