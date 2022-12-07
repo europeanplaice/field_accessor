@@ -31,7 +31,7 @@ mod tests_simple_struct {
     }
 
     #[test]
-    fn test_get_mut(){
+    fn test_get_mut() {
         let mut dog = Dog {
             name: "Taro".to_string(),
             age: 3,
@@ -81,18 +81,17 @@ mod tests_simple_struct {
             "life_expectancy".to_string(),
         ];
         let mut fieldvalues: Vec<DogFieldEnum> = vec![];
-        for field_name in fields.into_iter(){
+        for field_name in fields.into_iter() {
             fieldvalues.push(dog.getenum(&field_name).unwrap());
-        };
+        }
         assert_eq!(fieldvalues[0], DogFieldEnum::name("Taro".to_string()));
         assert_eq!(fieldvalues[1], DogFieldEnum::age(3));
         assert_eq!(fieldvalues[2], DogFieldEnum::life_expectancy(9));
     }
-
 }
 
 #[cfg(test)]
-mod test_mem{
+mod test_mem {
     use field_accessor::FieldAccessor;
 
     #[derive(FieldAccessor)]
@@ -126,7 +125,9 @@ mod test_mem{
             friends: vec!["Mike".to_string(), "Nozomi".to_string()],
         };
         let field_name = "name".to_string();
-        let v: String = dog.replace(&field_name, "Taro_replaced".to_string()).unwrap();
+        let v: String = dog
+            .replace(&field_name, "Taro_replaced".to_string())
+            .unwrap();
         assert_eq!(v, "Taro".to_string());
         assert_eq!(dog.name, "Taro_replaced".to_string());
     }
@@ -176,7 +177,7 @@ mod tests_vector_type {
 }
 
 #[cfg(test)]
-mod tests_getstructinfo{
+mod tests_getstructinfo {
 
     use field_accessor::FieldAccessor;
 
@@ -188,7 +189,7 @@ mod tests_getstructinfo{
     }
 
     #[test]
-    fn test_getstructinfo(){
+    fn test_getstructinfo() {
         let dog = Dog {
             name: "Taro".to_string(),
             age: 3,
@@ -205,13 +206,11 @@ mod tests_getstructinfo{
     }
 }
 
-
 #[cfg(test)]
-mod tests_multiple_derive{
+mod tests_multiple_derive {
 
     #[test]
-    fn test_multiple_derive(){
-
+    fn test_multiple_derive() {
         use field_accessor::FieldAccessor;
 
         #[derive(FieldAccessor)]
@@ -222,34 +221,42 @@ mod tests_multiple_derive{
         #[derive(FieldAccessor)]
         struct Test2 {
             pub name: String,
-        }           
+        }
     }
 }
 
-
 #[cfg(test)]
-mod tests_nested_structs{
+mod tests_nested_structs {
 
     #[test]
-    fn test_nested_structs(){
+    fn test_nested_structs() {
         use field_accessor::FieldAccessor;
 
         // Todo Find an elegant way to use FieldAccessor without passing these traits to derive.
-        #[derive(PartialEq, PartialOrd, Default, Clone, Debug, FieldAccessor)]
+        #[derive(PartialEq, PartialOrd, Default, Clone, Debug)]
         pub struct UserData {
-            some_field: String
+            some_field: String,
+            some_value: i32,
         }
-        
+
         #[derive(FieldAccessor)]
         pub struct User {
             name: String,
-            data: UserData
+            data: UserData,
         }
 
-        let user_data = UserData{some_field: "some value".to_string()};
-        let my_user = User{name: "aGoodName".to_string(), data: user_data};
+        let user_data = UserData {
+            some_field: "some value".to_string(),
+            some_value: 123,
+        };
+        let my_user = User {
+            name: "aGoodName".to_string(),
+            data: user_data,
+        };
         let field_name = "name".to_string();
         let name: &String = my_user.get(&field_name).unwrap();
+        let userdata: &UserData = my_user.get(&"data".to_string()).unwrap();
         assert_eq!(*name, "aGoodName".to_string());
+        assert_eq!(*userdata.some_field, "some value".to_string());
     }
 }
