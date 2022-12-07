@@ -1,5 +1,5 @@
 use proc_macro::{self, TokenStream};
-use quote::{quote, format_ident};
+use quote::{format_ident, quote};
 use syn::{parse_macro_input, DeriveInput, FieldsNamed};
 
 #[proc_macro_derive(FieldAccessor)]
@@ -29,16 +29,22 @@ pub fn derive(input: TokenStream) -> TokenStream {
                 let mut swap_tys = vec![];
                 let mut set_tys = vec![];
 
-                let field_idents = named
-                    .iter()
-                    .map(|f| &f.ident);
+                let field_idents = named.iter().map(|f| &f.ident);
 
                 let mut swap_ident = vec![];
                 let mut swap_ident2 = vec![];
-                for (outer_ident, outer_type) in named.iter().map(|f| &f.ident).zip(named.iter().map(|f| &f.ty)){
-                    for (inner_ident, inner_type) in named.iter().map(|f| &f.ident).zip(named.iter().map(|f| &f.ty)){
+                for (outer_ident, outer_type) in named
+                    .iter()
+                    .map(|f| &f.ident)
+                    .zip(named.iter().map(|f| &f.ty))
+                {
+                    for (inner_ident, inner_type) in named
+                        .iter()
+                        .map(|f| &f.ident)
+                        .zip(named.iter().map(|f| &f.ty))
+                    {
                         if outer_type == inner_type {
-                            if outer_ident != inner_ident{
+                            if outer_ident != inner_ident {
                                 swap_tys.push(inner_type);
                                 swap_ident.push(outer_ident.clone());
                                 swap_ident2.push(inner_ident.clone());
@@ -54,11 +60,9 @@ pub fn derive(input: TokenStream) -> TokenStream {
                         take_tys.push(name.ty.clone());
                         replace_tys.push(name.ty.clone());
                         set_tys.push(name.ty.clone());
-                        
-                        let get_filtered_ident = named
-                            .iter()
-                            .filter(|x| x.ty == name.ty)
-                            .map(|f| &f.ident);
+
+                        let get_filtered_ident =
+                            named.iter().filter(|x| x.ty == name.ty).map(|f| &f.ident);
                         let get_mut_filtered_ident = get_filtered_ident.clone();
                         let take_filtered_ident = get_filtered_ident.clone();
                         let replace_filtered_ident = get_filtered_ident.clone();
@@ -192,7 +196,7 @@ pub fn derive(input: TokenStream) -> TokenStream {
                         }
                     }
                 }
-            },
+            }
             syn::Fields::Unnamed(_) => panic!("Only NamedFields is supported"),
             syn::Fields::Unit => panic!("Only NamedFields is supported"),
         },
