@@ -1,11 +1,11 @@
 [package]
 name = "field_accessor"
-version = "0.5.2"
+version = "0.6.0"
 edition = "2021"
 authors = ["Tomohiro Endo <europeanplaice@gmail.com>"]
 description = "A procedural macro to get and set a struct field by String dynamically." 
 repository = "https://github.com/europeanplaice/field_accessor"
-readme = "readme.md"
+readme = "README.md"
 license = "MIT"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -17,3 +17,6 @@ proc-macro = true
 [dependencies]
 syn = {version = "1.0", features = ["full", "extra-traits"]}
 quote = "1.0"
+
+[dev-dependencies]
+trybuild = "1.0"

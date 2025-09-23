@@ -1,0 +1,7 @@
+error: proc-macro derive panicked
+ --> tests/ui/fail/tuple_struct_not_supported.rs:3:10
+  |
+3 | #[derive(FieldAccessor)]
+  |          ^^^^^^^^^^^^^
+  |
+  = help: message: Only NamedFields is supported

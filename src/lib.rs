@@ -109,19 +109,19 @@ pub fn derive(input: TokenStream) -> TokenStream {
                 quote! {
 
                     #[derive(Debug, Clone)]
-                    struct #structinfo {
-                        field_names: Vec<String>,
-                        field_types: Vec<String>,
-                        struct_name: String
+                    pub struct #structinfo {
+                        pub field_names: Vec<String>,
+                        pub field_types: Vec<String>,
+                        pub struct_name: String
                     }
 
-                    #[derive(Debug, PartialEq, PartialOrd, Clone)]
+                    #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
                     #[allow(non_camel_case_types)]
-                    enum #enumname{
-                        #(#idents_enum(#tys_enum)),*
+                    pub enum #enumname<'a> {
+                        #(#idents_enum(&'a #tys_enum)),*
                     }
 
-                    trait #gettersetter<T> {
+                    pub trait #gettersetter<T> {
                         fn get(&self, field_string: &String) -> Result<&T, String>;
                         fn get_mut(&mut self, field_string: &String) -> Result<&mut T, String>;
                         fn take(&mut self, field_string: &String) -> Result<T, String>;
@@ -167,7 +167,7 @@ pub fn derive(input: TokenStream) -> TokenStream {
 
                     impl #ident {
 
-                        fn swap(&mut self, field_string: &String, field_string_y: &String) -> Result<(), String> {
+                        pub fn swap(&mut self, field_string: &String, field_string_y: &String) -> Result<(), String> {
                             match (&**field_string, &**field_string_y) {
                                 #(
                                     (stringify!(#swap_ident), stringify!(#swap_ident2)) => {
@@ -179,16 +179,16 @@ pub fn derive(input: TokenStream) -> TokenStream {
                             }
                         }
 
-                        fn getenum(&self, field_string: &String) -> Result<#enumname, String> {
+                        pub fn getenum(&self, field_string: &String) -> Result<#enumname<'_>, String> {
                             match &**field_string {
                                 #(stringify!(#idents_getenum) => {
-                                    Ok(#enumname::#idents_getenum(self.#idents_getenum.clone()))
+                                    Ok(#enumname::#idents_getenum(&self.#idents_getenum))
                                 }),*
                                 _ => Err(format!("invalid field name to getenum '{}'", field_string)),
                             }
                         }
 
-                        fn getstructinfo(&self) -> #structinfo {
+                        pub fn getstructinfo(&self) -> #structinfo {
                             #structinfo {
                                 field_names: vec![#(stringify!(#field_idents).to_string()),*],
                                 field_types: vec![#(stringify!(#tys_for_structinfo).to_string()),*],

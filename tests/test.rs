@@ -69,6 +69,19 @@ mod tests_simple_struct {
     }
 
     #[test]
+    fn test_set_error_message() {
+        let mut dog = Dog {
+            name: "Taro".to_string(),
+            age: 3,
+            life_expectancy: 9,
+        };
+        let error = dog
+            .set(&"height".to_string(), "short".to_string())
+            .unwrap_err();
+        assert_eq!(error, "invalid field name to set 'height'".to_string());
+    }
+
+    #[test]
     fn test_iterate_with_enum() {
         let dog = Dog {
             name: "Taro".to_string(),
@@ -80,13 +93,13 @@ mod tests_simple_struct {
             "age".to_string(),
             "life_expectancy".to_string(),
         ];
-        let mut fieldvalues: Vec<DogFieldEnum> = vec![];
+        let mut fieldvalues = Vec::new();
         for field_name in fields.into_iter() {
             fieldvalues.push(dog.getenum(&field_name).unwrap());
         }
-        assert_eq!(fieldvalues[0], DogFieldEnum::name("Taro".to_string()));
-        assert_eq!(fieldvalues[1], DogFieldEnum::age(3));
-        assert_eq!(fieldvalues[2], DogFieldEnum::life_expectancy(9));
+        assert!(matches!(fieldvalues[0], DogFieldEnum::name(value) if value == "Taro"));
+        assert!(matches!(fieldvalues[1], DogFieldEnum::age(value) if value == &3));
+        assert!(matches!(fieldvalues[2], DogFieldEnum::life_expectancy(value) if value == &9));
     }
 }
 
@@ -146,6 +159,20 @@ mod test_mem {
         assert_eq!(dog.age, 9);
         assert_eq!(dog.life_expectancy, 3);
     }
+
+    #[test]
+    fn test_swap_invalid_combination() {
+        let mut dog = Dog {
+            name: "Taro".to_string(),
+            age: 3,
+            life_expectancy: 9,
+            friends: vec!["Mike".to_string(), "Nozomi".to_string()],
+        };
+        let err = dog
+            .swap(&"age".to_string(), &"name".to_string())
+            .unwrap_err();
+        assert_eq!(err, "invalid field name to swap".to_string());
+    }
 }
 
 #[cfg(test)]
@@ -196,13 +223,13 @@ mod tests_getstructinfo {
             life_expectancy: 9,
         };
         let info = dog.getstructinfo();
-        let mut fieldvalues = vec![];
+        let mut fieldvalues = Vec::new();
         for i in info.field_names.iter() {
             fieldvalues.push(dog.getenum(i).unwrap());
         }
-        assert_eq!(fieldvalues[0], DogFieldEnum::name("Taro".to_string()));
-        assert_eq!(fieldvalues[1], DogFieldEnum::age(3));
-        assert_eq!(fieldvalues[2], DogFieldEnum::life_expectancy(9));
+        assert!(matches!(fieldvalues[0], DogFieldEnum::name(value) if value == "Taro"));
+        assert!(matches!(fieldvalues[1], DogFieldEnum::age(value) if value == &3));
+        assert!(matches!(fieldvalues[2], DogFieldEnum::life_expectancy(value) if value == &9));
     }
 }
 
@@ -222,6 +249,16 @@ mod tests_multiple_derive {
         struct Test2 {
             pub name: String,
         }
+
+        let mut test = Test {
+            name: "first".to_string(),
+        };
+        test.set(&"name".to_string(), "updated".to_string())
+            .unwrap();
+        let test2 = Test2 {
+            name: "second".to_string(),
+        };
+        let _ = test2.get(&"name".to_string()).unwrap();
     }
 }
 

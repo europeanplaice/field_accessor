@@ -6,73 +6,81 @@ With this procedural macro, you can dynamically get and update a field of the st
 It can be good for you if you don't know which field you want when compiling. The functionality is similar to python's `getattr`, `setattr`.
 ## Installation
 
-```
+Add the crate from crates.io:
+
+```toml
 [dependencies]
-field_accessor = "0"
+field_accessor = "0.6"
 ```
+
+You can also run `cargo add field_accessor` to record the current patch version automatically.
 
 ## About this macro
-This macro provides the four methods for structs. Only for `get`, `set`, to deal with different types of each field, I defined `GetterSetter<T>` trait and implemented it for each type.
+This macro generates a `GetterSetter<T>` trait for the derived struct and implements it for every field type that appears in the struct. Each implementation exposes the same API, allowing you to work with any field whose type is `T`.
 
 ```rust
-trait GetterSetter<T> {
+pub trait StructNameGetterSetter<T> {
     fn get(&self, field_string: &String) -> Result<&T, String>;
+    fn get_mut(&mut self, field_string: &String) -> Result<&mut T, String>;
+    fn take(&mut self, field_string: &String) -> Result<T, String>;
+    fn replace(&mut self, field_string: &String, src: T) -> Result<T, String>;
     fn set(&mut self, field_string: &String, value: T) -> Result<(), String>;
 }
 
-//implement for each type
-impl GetterSetter<String> for StructName {
-    fn get(&self, field_string: &String) -> Result<&String, String>;
-    fn set(&mut self, field_string: &String, value: String) -> Result<(), String>;
-}
-impl GetterSetter<u32> for StructName {
-    fn get(&self, field_string: &String) -> Result<&u32, String>;
-    fn set(&mut self, field_string: &String, value: u32) -> Result<(), String>;
-}
-etc...
+impl StructNameGetterSetter<String> for StructName { /* generated */ }
+impl StructNameGetterSetter<u32> for StructName { /* generated */ }
+// ...one impl per distinct field type
 ```
+
+In addition to the trait implementations, the macro adds inherent methods such as `swap`, `getenum`, and `getstructinfo` on the struct itself.
 
 ### `get`
 ```rust
 fn get(&self, field_string: &String) -> Result<&T, String>;
 ```
-It returns a field's value. Note that you need to specify the return type.
+Returns an immutable reference to the requested field. You need to specify `T` (for example `let value: &String = dog.get(name)?;`) so that the compiler can pick the correct implementation.
+
 ### `get_mut`
 ```rust
 fn get_mut(&mut self, field_string: &String) -> Result<&mut T, String>;
 ```
-Returns a mutable reference to the field corresponding to the field_string.
+Returns a mutable reference to the field corresponding to `field_string`.
+
 ### `set`
 ```rust
-fn set(&mut self, field_string: &String, value: String) -> Result<(), String>;
+fn set(&mut self, field_string: &String, value: T) -> Result<(), String>;
 ```
-It updates a field's value.
+Replaces the field with `value` and discards the previous value.
+
 ### `take`
 ```rust
 fn take(&mut self, field_string: &String) -> Result<T, String>;
 ```
-Replaces a field's value with the default value of T, returning the previous field's value.
-### `swap`
-```rust
-fn swap(&mut self, field_string: &String, field_string_y: &String) -> Result<(), String>;
-```
-Swaps the values at two fields, without deinitializing either one.
+Replaces the field with `T::default()` (so `T` must implement `Default`) and returns the previous value.
+
 ### `replace`
 ```rust
 fn replace(&mut self, field_string: &String, src: T) -> Result<T, String>;
 ```
-Moves src into the field, returning the previous field's value.
+Moves `src` into the field and returns the previous value.
+
+### `swap`
+```rust
+fn swap(&mut self, field_string: &String, field_string_y: &String) -> Result<(), String>;
+```
+Swaps the contents of two fields that share the same type. If the types differ, the macro does not generate a matching arm and the call fails at runtime.
+
 ### `getenum`
 ```rust
-fn getenum(&self, field_string: &String) -> Result<(StructName)FieldEnum, String>;
+fn getenum(&self, field_string: &String) -> Result<StructNameFieldEnum<'_>, String>;
 ```
-It returns a field's value like as `get` method, but the return type is enum. This method is helpful when field types vary. I will explain about enum later.
+Returns the requested field wrapped in a generated enum that preserves the field's name and returns references. This avoids having to specify `T` explicitly when you need to work with heterogeneously typed fields.
 
 ### `getstructinfo`
 ```rust
-fn getstructinfo(&self) -> (StructName)StructInfo;
+fn getstructinfo(&self) -> StructNameStructInfo;
 ```
-You can extract a struct's field names, types, and a struct name.
+Provides metadata about the struct: the declared field names, their type names (as strings), and the struct name itself.
 
 ## Usage and Example
 ![run](img/run.gif)
@@ -85,6 +93,7 @@ struct Dog {
     name: String,
     age: u32,
     life_expectancy: u32,
+    friends: Vec<String>,
 }
 
 fn main() {
@@ -92,38 +101,48 @@ fn main() {
         name: "Taro".to_string(),
         age: 3,
         life_expectancy: 9,
+        friends: vec!["Mike".to_string(), "Nozomi".to_string()],
     };
 
-    let field_name = "name".to_string();
-    let value_to_update = "Jiro".to_string();
-    dog.set(&field_name, value_to_update).unwrap();
-    let value_on_error;
-    let fieldvalue: &String = match dog.get(&"invalid_field".to_string()) {
-        Ok(value) => value,
-        Err(_) => {value_on_error = "Ken".to_string(); &value_on_error},
-    };
-    println!("{:?}", fieldvalue);
+    dog.set(&"name".to_string(), "Jiro".to_string()).unwrap();
+    let nickname: &mut String = dog.get_mut(&"name".to_string()).unwrap();
+    nickname.push_str(" the Dog");
 
-    let field_name = "age".to_string();
-    let value_to_update = 4u32;
-    dog.set(&field_name, value_to_update).unwrap();
-    let fieldvalue: &u32 = dog.get(&field_name).unwrap();
-    println!("{:?}", fieldvalue);
+    let age: &u32 = dog.get(&"age".to_string()).unwrap();
+    println!("{} is {} years old", nickname, age);
 
-    let field_name = "life_expectancy".to_string();
-    let value_to_update = 10u32;
-    dog.set(&field_name, value_to_update).unwrap();
-    let fieldvalue: &u32 = dog.get(&field_name).unwrap();
-    println!("{:?}", fieldvalue);
+    let previous_name: String = dog
+        .replace(&"name".to_string(), "Ken".to_string())
+        .unwrap();
+    println!("{} used to be called {}", dog.name, previous_name);
 
+    let removed_friends: Vec<String> = dog.take(&"friends".to_string()).unwrap();
+    println!("friends: {:?}", removed_friends);
+
+    dog.swap(&"age".to_string(), &"life_expectancy".to_string())
+        .unwrap();
+    println!("age={}, life_expectancy={}", dog.age, dog.life_expectancy);
+
+    let fields = ["name", "age", "life_expectancy"];
+    for field in fields.iter() {
+        match dog.getenum(&field.to_string()).unwrap() {
+            DogFieldEnum::name(v) => println!("name: {}", v),
+            DogFieldEnum::age(v) => println!("age: {}", v),
+            DogFieldEnum::life_expectancy(v) => println!("life_expectancy: {}", v),
+        }
+    }
 }
 
 ```
-### output
+### output (abridged)
 ```
-"Ken"
-4
-10
+Jiro the Dog is 3 years old
+Ken used to be called Jiro the Dog
+friends: ["Mike", "Nozomi"]
+age=9, life_expectancy=3
+name: Ken
+age: 9
+life_expectancy: 3
 ```
 
 This code is generated at compiling.
@@ -150,7 +169,7 @@ let fields = vec![
     "name".to_string(),
     "age".to_string(),
     "life_expectancy".to_string(),
-]
+];
 for field_name in fields.into_iter(){
     let fieldvalue = dog.get(&field_name).unwrap();
 };
@@ -164,15 +183,15 @@ let fieldvalue = dog.get(&field_name).unwrap();
     consider giving `fieldvalue` the explicit type `&T`, where the type parameter `T` is specified
 ```
 
-A workaround is to replace `get` with `getenum`. This macro defines `(struct name)FieldEnum` behind the scenes for you like below.
+A workaround is to replace `get` with `getenum`. This macro defines `(struct name)FieldEnum<'a>` behind the scenes for you like below.
 ```rust
-enum DogFieldEnum {
-    name(String),
-    age(u32),
-    life_expectancy(u32),
+enum DogFieldEnum<'a> {
+    name(&'a String),
+    age(&'a u32),
+    life_expectancy(&'a u32),
 }
 ```
-You can use this as a return type. With this enum you can get any field's value without concerning a field's type.
+You can use this as a return type. With this enum you can get any field's value without concerning a field's type while still borrowing the data.
 ```rust
 let mut dog = Dog {
     name: "Taro".to_string(),
@@ -184,12 +203,12 @@ let fields = vec![
     "age".to_string(),
     "life_expectancy".to_string(),
 ];
-let mut fieldvalues: Vec<DogFieldEnum> = vec![];
-for field_name in fields.into_iter(){
+let mut fieldvalues = Vec::new();
+for field_name in fields.into_iter() {
     fieldvalues.push(dog.getenum(&field_name).unwrap());
-};
-assert_eq!(fieldvalues[0], DogFieldEnum::name("Taro".to_string()));
-assert_eq!(fieldvalues[1], DogFieldEnum::age(3));
+}
+assert!(matches!(fieldvalues[0], DogFieldEnum::name(value) if *value == "Taro"));
+assert!(matches!(fieldvalues[1], DogFieldEnum::age(value) if *value == 3));
 ```
 
 ## Getting struct's information
@@ -208,7 +227,7 @@ struct DogStructInfo {
 let info = dog.getstructinfo();
 println!("{:?}", info);
 for i in info.field_names.iter() {
-    let fieldvalue: DogFieldEnum = dog.getenum(i).unwrap();
+    let fieldvalue = dog.getenum(i).unwrap();
     println!("{:?}", fieldvalue);
 }
 ```
