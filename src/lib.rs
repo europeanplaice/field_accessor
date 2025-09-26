@@ -43,12 +43,10 @@ pub fn derive(input: TokenStream) -> TokenStream {
                         .map(|f| &f.ident)
                         .zip(named.iter().map(|f| &f.ty))
                     {
-                        if outer_type == inner_type {
-                            if outer_ident != inner_ident {
-                                swap_tys.push(inner_type);
-                                swap_ident.push(outer_ident.clone());
-                                swap_ident2.push(inner_ident.clone());
-                            }
+                        if outer_type == inner_type && outer_ident != inner_ident {
+                            swap_tys.push(inner_type);
+                            swap_ident.push(outer_ident.clone());
+                            swap_ident2.push(inner_ident.clone());
                         }
                     }
                 }
@@ -122,42 +120,42 @@ pub fn derive(input: TokenStream) -> TokenStream {
                     }
 
                     pub trait #gettersetter<T> {
-                        fn get(&self, field_string: &String) -> Result<&T, String>;
-                        fn get_mut(&mut self, field_string: &String) -> Result<&mut T, String>;
-                        fn take(&mut self, field_string: &String) -> Result<T, String>;
-                        fn replace(&mut self, field_string: &String, src: T) -> Result<T, String>;
-                        fn set(&mut self, field_string: &String, value: T) -> Result<(), String>;
+                        fn get(&self, field_string: &str) -> Result<&T, String>;
+                        fn get_mut(&mut self, field_string: &str) -> Result<&mut T, String>;
+                        fn take(&mut self, field_string: &str) -> Result<T, String>;
+                        fn replace(&mut self, field_string: &str, src: T) -> Result<T, String>;
+                        fn set(&mut self, field_string: &str, value: T) -> Result<(), String>;
                     }
 
                     #(
                         impl #gettersetter<#set_tys> for #ident {
-                            fn get(&self, field_string: &String) -> Result<&#get_tys, String> {
-                                match &**field_string {
+                            fn get(&self, field_string: &str) -> Result<&#get_tys, String> {
+                                match field_string {
                                     #get_quotes,
                                     _ => Err(format!("invalid field name to get '{}'", field_string)),
                                 }
                             }
-                            fn get_mut(&mut self, field_string: &String) -> Result<&mut #get_tys, String> {
-                                match &**field_string {
+                            fn get_mut(&mut self, field_string: &str) -> Result<&mut #get_tys, String> {
+                                match field_string {
                                     #get_mut_quotes,
                                     _ => Err(format!("invalid field name to get_mut '{}'", field_string)),
                                 }
                             }
-                            fn take(&mut self, field_string: &String) -> Result<#take_tys, String> {
-                                match &**field_string {
+                            fn take(&mut self, field_string: &str) -> Result<#take_tys, String> {
+                                match field_string {
                                     #take_quotes,
                                     _ => Err(format!("invalid field name to take '{}'", field_string)),
                                 }
                             }
-                            fn replace(&mut self, field_string: &String, src: #replace_tys) -> Result<#replace_tys, String> {
-                                match &**field_string {
+                            fn replace(&mut self, field_string: &str, src: #replace_tys) -> Result<#replace_tys, String> {
+                                match field_string {
                                     #replace_quotes,
                                     _ => Err(format!("invalid field name to replace '{}'", field_string)),
                                 }
                             }
 
-                            fn set(&mut self, field_string: &String, value: #set_tys) -> Result<(), String>{
-                                match &**field_string {
+                            fn set(&mut self, field_string: &str, value: #set_tys) -> Result<(), String>{
+                                match field_string {
                                     #set_quotes,
                                     _ => Err(format!("invalid field name to set '{}'", field_string)),
                                 }
@@ -167,8 +165,8 @@ pub fn derive(input: TokenStream) -> TokenStream {
 
                     impl #ident {
 
-                        pub fn swap(&mut self, field_string: &String, field_string_y: &String) -> Result<(), String> {
-                            match (&**field_string, &**field_string_y) {
+                        pub fn swap(&mut self, field_string: &str, field_string_y: &str) -> Result<(), String> {
+                            match (field_string, field_string_y) {
                                 #(
                                     (stringify!(#swap_ident), stringify!(#swap_ident2)) => {
                                         std::mem::swap::<#swap_tys>(&mut self.#swap_ident, &mut self.#swap_ident2);
@@ -179,8 +177,8 @@ pub fn derive(input: TokenStream) -> TokenStream {
                             }
                         }
 
-                        pub fn getenum(&self, field_string: &String) -> Result<#enumname<'_>, String> {
-                            match &**field_string {
+                        pub fn getenum(&self, field_string: &str) -> Result<#enumname<'_>, String> {
+                            match field_string {
                                 #(stringify!(#idents_getenum) => {
                                     Ok(#enumname::#idents_getenum(&self.#idents_getenum))
                                 }),*

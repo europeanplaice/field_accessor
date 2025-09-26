@@ -15,16 +15,21 @@ field_accessor = "0.6"
 
 You can also run `cargo add field_accessor` to record the current patch version automatically.
 
+## Breaking changes in v0.6
+
+- `FieldEnum` variants now hold references instead of owned values (for example `DogFieldEnum::name(&String)`), so pattern matches that moved the field value must be updated.
+- The generated trait and inherent methods take `&str` for field names instead of `&String`. Code storing function pointers or relying on previous signatures needs to adjust.
+
 ## About this macro
 This macro generates a `GetterSetter<T>` trait for the derived struct and implements it for every field type that appears in the struct. Each implementation exposes the same API, allowing you to work with any field whose type is `T`.
 
 ```rust
 pub trait StructNameGetterSetter<T> {
-    fn get(&self, field_string: &String) -> Result<&T, String>;
-    fn get_mut(&mut self, field_string: &String) -> Result<&mut T, String>;
-    fn take(&mut self, field_string: &String) -> Result<T, String>;
-    fn replace(&mut self, field_string: &String, src: T) -> Result<T, String>;
-    fn set(&mut self, field_string: &String, value: T) -> Result<(), String>;
+fn get(&self, field_string: &str) -> Result<&T, String>;
+fn get_mut(&mut self, field_string: &str) -> Result<&mut T, String>;
+fn take(&mut self, field_string: &str) -> Result<T, String>;
+fn replace(&mut self, field_string: &str, src: T) -> Result<T, String>;
+fn set(&mut self, field_string: &str, value: T) -> Result<(), String>;
 }
 
 impl StructNameGetterSetter<String> for StructName { /* generated */ }
@@ -36,43 +41,43 @@ In addition to the trait implementations, the macro adds inherent methods such a
 
 ### `get`
 ```rust
-fn get(&self, field_string: &String) -> Result<&T, String>;
+fn get(&self, field_string: &str) -> Result<&T, String>;
 ```
 Returns an immutable reference to the requested field. You need to specify `T` (for example `let value: &String = dog.get(name)?;`) so that the compiler can pick the correct implementation.
 
 ### `get_mut`
 ```rust
-fn get_mut(&mut self, field_string: &String) -> Result<&mut T, String>;
+fn get_mut(&mut self, field_string: &str) -> Result<&mut T, String>;
 ```
 Returns a mutable reference to the field corresponding to `field_string`.
 
 ### `set`
 ```rust
-fn set(&mut self, field_string: &String, value: T) -> Result<(), String>;
+fn set(&mut self, field_string: &str, value: T) -> Result<(), String>;
 ```
 Replaces the field with `value` and discards the previous value.
 
 ### `take`
 ```rust
-fn take(&mut self, field_string: &String) -> Result<T, String>;
+fn take(&mut self, field_string: &str) -> Result<T, String>;
 ```
 Replaces the field with `T::default()` (so `T` must implement `Default`) and returns the previous value.
 
 ### `replace`
 ```rust
-fn replace(&mut self, field_string: &String, src: T) -> Result<T, String>;
+fn replace(&mut self, field_string: &str, src: T) -> Result<T, String>;
 ```
 Moves `src` into the field and returns the previous value.
 
 ### `swap`
 ```rust
-fn swap(&mut self, field_string: &String, field_string_y: &String) -> Result<(), String>;
+fn swap(&mut self, field_string: &str, field_string_y: &str) -> Result<(), String>;
 ```
 Swaps the contents of two fields that share the same type. If the types differ, the macro does not generate a matching arm and the call fails at runtime.
 
 ### `getenum`
 ```rust
-fn getenum(&self, field_string: &String) -> Result<StructNameFieldEnum<'_>, String>;
+fn getenum(&self, field_string: &str) -> Result<StructNameFieldEnum<'_>, String>;
 ```
 Returns the requested field wrapped in a generated enum that preserves the field's name and returns references. This avoids having to specify `T` explicitly when you need to work with heterogeneously typed fields.
 
