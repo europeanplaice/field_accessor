@@ -1,6 +1,6 @@
 [package]
 name = "field_accessor"
-version = "0.6.1"
+version = "0.6.2"
 edition = "2021"
 authors = ["Tomohiro Endo <europeanplaice@gmail.com>"]
 description = "A procedural macro to get and set a struct field by String dynamically." 

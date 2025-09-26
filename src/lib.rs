@@ -4,7 +4,14 @@ use syn::{parse_macro_input, DeriveInput, FieldsNamed};
 
 #[proc_macro_derive(FieldAccessor)]
 pub fn derive(input: TokenStream) -> TokenStream {
-    let DeriveInput { ident, data, .. } = parse_macro_input!(input);
+    let DeriveInput {
+        ident,
+        data,
+        generics,
+        ..
+    } = parse_macro_input!(input);
+
+    let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
     let output = match data {
         syn::Data::Struct(s) => match s.fields {
@@ -128,7 +135,7 @@ pub fn derive(input: TokenStream) -> TokenStream {
                     }
 
                     #(
-                        impl #gettersetter<#set_tys> for #ident {
+                        impl #impl_generics #gettersetter<#set_tys> for #ident #ty_generics #where_clause {
                             fn get(&self, field_string: &str) -> Result<&#get_tys, String> {
                                 match field_string {
                                     #get_quotes,
@@ -163,7 +170,7 @@ pub fn derive(input: TokenStream) -> TokenStream {
                         }
                     )*
 
-                    impl #ident {
+                    impl #impl_generics #ident #ty_generics #where_clause {
 
                         pub fn swap(&mut self, field_string: &str, field_string_y: &str) -> Result<(), String> {
                             match (field_string, field_string_y) {

@@ -10,10 +10,14 @@ Add the crate from crates.io:
 
 ```toml
 [dependencies]
-field_accessor = "0.6"
+field_accessor = "0.6.2"
 ```
 
 You can also run `cargo add field_accessor` to record the current patch version automatically.
+
+## What's new in v0.6.2
+
+- The derive macro now propagates struct generics and lifetimes so you can use `FieldAccessor` with structs that contain reference fields or other borrowed data.
 
 ## Breaking changes in v0.6
 
@@ -109,28 +113,25 @@ fn main() {
         friends: vec!["Mike".to_string(), "Nozomi".to_string()],
     };
 
-    dog.set(&"name".to_string(), "Jiro".to_string()).unwrap();
-    let nickname: &mut String = dog.get_mut(&"name".to_string()).unwrap();
+    dog.set("name", "Jiro".to_string()).unwrap();
+    let nickname: &mut String = dog.get_mut("name").unwrap();
     nickname.push_str(" the Dog");
 
-    let age: &u32 = dog.get(&"age".to_string()).unwrap();
+    let age: &u32 = dog.get("age").unwrap();
     println!("{} is {} years old", nickname, age);
 
-    let previous_name: String = dog
-        .replace(&"name".to_string(), "Ken".to_string())
-        .unwrap();
+    let previous_name: String = dog.replace("name", "Ken".to_string()).unwrap();
     println!("{} used to be called {}", dog.name, previous_name);
 
-    let removed_friends: Vec<String> = dog.take(&"friends".to_string()).unwrap();
+    let removed_friends: Vec<String> = dog.take("friends").unwrap();
     println!("friends: {:?}", removed_friends);
 
-    dog.swap(&"age".to_string(), &"life_expectancy".to_string())
-        .unwrap();
+    dog.swap("age", "life_expectancy").unwrap();
     println!("age={}, life_expectancy={}", dog.age, dog.life_expectancy);
 
     let fields = ["name", "age", "life_expectancy"];
     for field in fields.iter() {
-        match dog.getenum(&field.to_string()).unwrap() {
+        match dog.getenum(field).unwrap() {
             DogFieldEnum::name(v) => println!("name: {}", v),
             DogFieldEnum::age(v) => println!("age: {}", v),
             DogFieldEnum::life_expectancy(v) => println!("life_expectancy: {}", v),
@@ -151,6 +152,22 @@ life_expectancy: 3
 ```
 
 This code is generated at compiling.
+
+### Borrowed fields
+
+Starting from v0.6.2 you can derive `FieldAccessor` for structs that borrow data. Generics and lifetimes declared on the struct are forwarded to every generated impl.
+
+```rust
+use field_accessor::FieldAccessor;
+
+#[derive(FieldAccessor)]
+struct Config<'a> {
+    title: &'a str,
+}
+
+let config = Config { title: "demo" };
+assert_eq!(config.get("title").unwrap(), &"demo");
+```
 
 ## Known issues
 
@@ -203,14 +220,10 @@ let mut dog = Dog {
     age: 3,
     life_expectancy: 9,
 };
-let fields = vec![
-    "name".to_string(),
-    "age".to_string(),
-    "life_expectancy".to_string(),
-];
+let fields = vec!["name", "age", "life_expectancy"];
 let mut fieldvalues = Vec::new();
 for field_name in fields.into_iter() {
-    fieldvalues.push(dog.getenum(&field_name).unwrap());
+    fieldvalues.push(dog.getenum(field_name).unwrap());
 }
 assert!(matches!(fieldvalues[0], DogFieldEnum::name(value) if *value == "Taro"));
 assert!(matches!(fieldvalues[1], DogFieldEnum::age(value) if *value == 3));

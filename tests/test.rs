@@ -200,6 +200,22 @@ mod tests_vector_type {
 }
 
 #[cfg(test)]
+mod tests_reference_fields {
+    use field_accessor::FieldAccessor;
+
+    #[derive(FieldAccessor)]
+    pub struct DogRef<'a> {
+        name: &'a str,
+    }
+
+    #[test]
+    fn test_reference_field_get() {
+        let dog = DogRef { name: "Taro" };
+        assert_eq!(dog.get("name").unwrap(), &"Taro");
+    }
+}
+
+#[cfg(test)]
 mod tests_getstructinfo {
 
     use field_accessor::FieldAccessor;
